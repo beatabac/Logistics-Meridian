@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MERIDIAN | Logistics Intelligence</title>
+<style>
+  /* ── RESET & BASE ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #050d18; --bg2: #040c16; --bg3: #08101c;
+    --blue: #3a78b8; --blue-dim: #1a3050; --blue-faint: #0e2030;
+    --red: #c02018; --red-dim: #8a1810; --orange: #b04818;
+    --green: #208050; --gold: #a09030;
+    --text: #c0cdd8; --text-dim: #8090a8; --text-faint: #6888a8;
+    --border: rgba(255,255,255,0.055);
+  }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
+  button { cursor: pointer; font-family: inherit; }
+  p { margin-bottom: 8px; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-thumb { background: var(--blue-dim); border-radius: 2px; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes pulse { 0%,100%{opacity:.45} 50%{opacity:1} }
+  @keyframes fadein { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ── HEADER ── */
+  #header {
+    background: var(--bg2); border-bottom: 1px solid rgba(58,120,184,.15);
+    padding: 10px 16px; display: flex; align-items: center;
+    justify-content: space-between; gap: 8px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 50;
+  }
+  #logo { display: flex; align-items: center; gap: 10px; }
+  #logo-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 1.5px solid var(--blue); display: flex; align-items: center;
+    justify-content: center; background: rgba(58,120,184,.08);
+    box-shadow: 0 0 12px rgba(58,120,184,.3); font-size: 15px;
+  }
+  #logo-text .name { font-family: monospace; font-weight: 700; font-size: 14px; color: var(--blue); letter-spacing: 3px; }
+  #logo-text .sub { font-size: 8px; color: var(--blue-dim); letter-spacing: 2px; font-family: monospace; }
+  #header-right { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+  /* ── COUNTDOWN ── */
+  .countdown-box {
+    background: rgba(168,24,16,.2); border: 1px solid rgba(200,50,35,.5);
+    border-radius: 4px; padding: 5px 11px; text-align: center;
+  }
+  .countdown-box .label { font-size: 8px; color: #a03020; font-family: monospace; letter-spacing: 1px; white-space: nowrap; }
+  .countdown-box .value { font-family: monospace; font-size: 12px; font-weight: 700; color: #d84030; white-space: nowrap; animation: pulse 1.2s infinite; }
+
+  /* ── GMT BOX ── */
+  .gmt-box {
+    background: rgba(12,25,40,.9); border: 1px solid rgba(58,120,184,.15);
+    border-radius: 4px; padding: 5px 10px; text-align: center;
+  }
+  .gmt-box .label { font-size: 8px; color: var(--blue-dim); font-family: monospace; }
+  .gmt-box .value { font-family: monospace; font-size: 12px; color: #4870a0; }
+
+  /* ── HEADER BUTTON ── */
+  .hdr-btn {
+    padding: 6px 11px; background: transparent; border-radius: 3px;
+    font-family: monospace; font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    border: 1px solid rgba(26,48,80,.6); color: var(--blue-dim);
+    transition: all .2s;
+  }
+  .hdr-btn.active { color: var(--gold); border-color: rgba(180,160,40,.4); }
+
+  /* ── TICKER ── */
+  #ticker {
+    overflow: hidden; background: rgba(160,30,20,.2);
+    border-bottom: 1px solid rgba(180,50,35,.4);
+    padding: 5px 0; display: flex; align-items: center; flex-shrink: 0;
+  }
+  #ticker-label {
+    background: #a81810; color: #fff; padding: 3px 12px;
+    font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    font-family: monospace; flex-shrink: 0;
+  }
+  #ticker-wrap { overflow: hidden; flex: 1; }
+  #ticker-inner { white-space: nowrap; font-size: 10px; color: #b86858; font-family: monospace; padding: 0 20px; letter-spacing: .3px; will-change: transform; }
+
+  /* ── STATUS BAR ── */
+  #statusbar {
+    background: rgba(4,12,22,.85); border-bottom: 1px solid rgba(255,255,255,.035);
+    padding: 4px 16px; display: flex; gap: 18px; overflow-x: auto; flex-shrink: 0;
+  }
+  .status-item { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.pulse { animation: pulse 1s infinite; }
+  .status-label { font-family: monospace; font-size: 9px; color: var(--blue-dim); }
+  .status-val { font-family: monospace; font-size: 9px; }
+
+  /* ── TABS ── */
+  #tabbar {
+    background: rgba(4,12,22,.7); border-bottom: 1px solid rgba(255,255,255,.035);
+    padding: 0 16px; display: flex; flex-shrink: 0;
+  }
+  .tab-btn {
+    padding: 9px 14px; background: transparent; color: var(--blue-dim);
+    border: none; border-bottom: 2px solid transparent;
+    font-family: monospace; font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; transition: all .2s;
+  }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ── CONTENT ── */
+  #content { flex: 1; max-width: 860px; width: 100%; margin: 0 auto; padding: 14px; animation: fadein .35s ease; }
+
+  /* ── CARDS ── */
+  .card {
+    background: rgba(8,16,28,.97); border: 1px solid var(--border);
+    border-radius: 5px; padding: 15px 17px; margin-bottom: 9px;
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
+  .card-title { display: flex; align-items: center; gap: 7px; }
+  .card-icon { font-size: 15px; }
+  .card-name { color: #c0d0e0; font-size: 12px; font-weight: 600; font-family: monospace; letter-spacing: .5px; }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 10px 2px 6px; border-radius: 2px;
+    color: #fff; font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; font-family: monospace;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; animation: pulse 1.4s infinite; }
+
+  /* ── BULLET ── */
+  .bullet { display: flex; gap: 9px; margin-bottom: 8px; align-items: flex-start; }
+  .bullet-diamond { font-size: 8px; margin-top: 5px; flex-shrink: 0; color: var(--blue); }
+  .bullet-text { color: var(--text-dim); font-size: 12px; line-height: 1.7; }
+
+  /* ── FLASH ALERTS ── */
+  #flash-card {
+    background: linear-gradient(135deg,rgba(140,20,12,.22),rgba(140,20,12,.07));
+    border: 1px solid rgba(180,40,28,.4); border-radius: 5px;
+    padding: 14px 17px; margin-bottom: 9px;
+  }
+  .flash-head { display: flex; align-items: center; gap: 7px; margin-bottom: 11px; }
+  .flash-title { color: var(--red); font-size: 11px; font-weight: 700; font-family: monospace; letter-spacing: 1.5px; }
+  .flash-item { display: flex; gap: 9px; margin-bottom: 9px; align-items: flex-start; }
+  .flash-num { color: var(--red); font-family: monospace; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .flash-text { color: #907880; font-size: 12px; line-height: 1.65; }
+
+  /* ── SECTION HEADER ── */
+  .section-head { margin-bottom: 12px; padding-bottom: 9px; border-bottom: 1px solid rgba(58,120,184,.12); }
+  .section-head .title { font-family: monospace; font-size: 10px; color: var(--blue); letter-spacing: 1px; }
+  .section-head .sub { font-family: monospace; font-size: 9px; color: var(--blue-dim); margin-top: 2px; }
+
+  /* ── SITUATION TEXT ── */
+  .situation-p { color: var(--text-faint); font-size: 12px; line-height: 1.75; margin-bottom: 8px; }
+
+  /* ── MARKET PULSE ── */
+  .pulse-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .pulse-label { color: #405870; font-size: 11px; font-family: monospace; flex-shrink: 0; margin-right: 8px; }
+  .pulse-right { text-align: right; }
+  .pulse-value { color: #c0d0e0; font-size: 11px; font-family: monospace; }
+  .pulse-arrow { font-size: 13px; }
+  .pulse-note { color: #304050; font-size: 9px; font-family: monospace; }
+
+  /* ── PORT GRID ── */
+  #port-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .port-item {
+    background: rgba(255,255,255,.025); border: 1px solid rgba(255,255,255,.05);
+    border-radius: 3px; padding: 8px 10px;
+  }
+  .port-head { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+  .port-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .port-name { font-family: monospace; font-size: 10px; font-weight: 700; color: #a0b8d0; }
+  .port-status { font-family: monospace; font-size: 8px; margin-left: auto; }
+  .port-note { font-size: 10px; color: #4a6078; padding-left: 10px; }
+
+  /* ── CORRIDOR CARD ── */
+  .corridor-status { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .corridor-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .corridor-label { font-family: monospace; font-size: 9px; letter-spacing: 1px; }
+
+  /* ── SOURCE CARD ── */
+  .source-note {
+    margin-top: 8px; padding: 10px 12px;
+    background: rgba(58,120,184,.05); border: 1px solid rgba(58,120,184,.12);
+    border-radius: 4px;
+  }
+  .source-note-title { font-size: 10px; color: var(--blue); font-family: monospace; margin-bottom: 4px; }
+  .source-note-text { font-size: 10px; color: #405870; line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  #footer {
+    padding-top: 8px; border-top: 1px solid rgba(255,255,255,.035);
+    font-size: 9px; color: var(--blue-faint); font-family: monospace;
+  }
+  #footer .line1 { margin-bottom: 3px; color: var(--blue-dim); }
+
+  /* ── MOBILE ── */
+  @media(max-width: 600px) {
+    #port-grid { grid-template-columns: 1fr; }
+    .tab-btn { padding: 9px 10px; font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="logo">
+      <div id="logo-circle">🌐</div>
+      <div id="logo-text">
+        <div class="name">MERIDIAN</div>
+        <div class="sub">LOGISTICS INTELLIGENCE · v7.1 MULTI-SOURCE EDITION</div>
+      </div>
+    </div>
+    <div id="header-right">
+      <div class="countdown-box">
+        <div class="label">CEASEFIRE EXTENDED</div>
+        <div class="value" id="countdown">--</div>
+      </div>
+      <div class="gmt-box">
+        <div class="label">GMT</div>
+        <div class="value" id="gmt-clock">--:--:--</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div id="ticker">
+    <div id="ticker-label">◉ LIVE</div>
+    <div id="ticker-wrap">
+      <div id="ticker-inner"></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="statusbar"></div>
+
+  <!-- TABS -->
+  <div id="tabbar">
+    <button class="tab-btn active" onclick="switchTab('briefing',this)">BRIEFING</button>
+    <button class="tab-btn" onclick="switchTab('ports',this)">PORTS</button>
+    <button class="tab-btn" onclick="switchTab('corridors',this)">CORRIDORS</button>
+    <button class="tab-btn" onclick="switchTab('sources',this)">SOURCES</button>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// MERIDIAN INTELLIGENCE DATA
+// To update: edit only this INTEL object, save the file, commit to GitHub.
+// The permanent URL never changes.
+// ══════════════════════════════════════════════════════════════════════
+const INTEL = {
+  updated: "Monday, April 28, 2026 | 08:00 GMT",
+  defcon: "CRITICAL — DIPLOMACY ACTIVE",
+  ceasefireExpiry: "2026-05-15T00:00:00Z",
+
+  situation: [
+    "BREAKING — IRAN PEACE PROPOSAL UNDER REVIEW (Al Jazeera, 08:00 GMT): Iran has formally offered to reopen the Strait of Hormuz in exchange for the US lifting its naval blockade on Iranian ports and a permanent end to the war. Trump's national security team is actively reviewing the proposal. Secretary of State Rubio told Fox News the plan is 'better than what we thought they were going to submit' — but stressed any deal must block Iran from nuclear weapons. A staged process is being discussed: Phase 1 restores pre-war Hormuz access and ends blockades; nuclear programme addressed in Phase 2 over 45 days. Iran's FM Araghchi met Putin in St. Petersburg; Pakistan mediating written exchanges.",
+    "DIPLOMATIC TRACK BUT INTRACTABLE DIVIDES: PBS (Apr 27): Iran's proposal would see Tehran end its Hormuz chokehold only in exchange for Washington lifting the port blockade — an offer Trump is 'likely to reject' as it does not address nuclear weapons. CNN sources: 'two sides are not as far apart as they seem' with 'intense diplomacy behind the scenes.' Al Jazeera: UN Secretary-General warns US-Iran Hormuz standoff risks triggering a global food emergency. UK-France-Germany coalition offering minesweeper deployment after permanent ceasefire.",
+    "DHL CEO WARNING + INDUSTRY PICTURE: DHL Group CEO Tobias Meyer (Bloomberg TV Apr 21): sustained Gulf crude disruption could push the global economy to a 'tipping point.' Evergreen: fuel costs up 60% since Feb 28. Kuehne+Nagel and DSV positioned for earnings upside from war-driven disruption — Bernstein: 'The potential for upside surprises at DSV's May 12 capital markets day is meaningful.' Loadstar Apr 27: container shipping settling into 'new normal' of lower schedule reliability.",
+  ],
+
+  flash: [
+    "IRAN PEACE PROPOSAL — MONITOR CLOSELY TODAY: Trump's NSC reviewing Iran's Hormuz reopening offer (Al Jazeera, 08:00 GMT). Rubio: 'better than expected.' If framework agreed this week, Brent drops $10-15/bbl immediately — but Bernstein warns rates fall gradually. Do NOT cancel landbridge or Cape bookings yet.",
+    "DHL CEO 'TIPPING POINT' WARNING: Tobias Meyer says sustained Gulf disruption pushing global economy toward tipping point. If you have not diversified away from Hormuz-dependent lanes, this is the final window before JPMorgan's May 9-30 critical inventory threshold.",
+    "MSC EXPORT SUSPENSION SOHAR/SALALAH: MSC suspended all export bookings from Sohar and Salalah until further notice. Contact MSC immediately for cargo staged there. Alternative: DHL multi-gateway LCL via Jeddah or Duqm. Standard free time applies — no extensions.",
+  ],
+
+  road: {
+    threat: "HIGH",
+    bullets: [
+      "DHL Global Forwarding (all country advisories — US, UK, DE, HK, IL): 'Alternative multimodal solutions are becoming critical. New landbridge solutions linking Europe to the GCC via Turkey, Syria or Iraq offer competitive transit times and pricing versus air and ocean.' Turkey-Iraq-Jordan Development Road (~10 days Europe-GCC) explicitly recommended.",
+      "The Loadstar (Apr 24): Middle East landbridge solutions highlighted as primary tool for markets cut off from Hormuz. Hapag-Lloyd, Maersk and port operators all cited. Landbridge demand accelerating — capacity tightening.",
+      "DHL ramping air capacity: Leipzig-Dubai B777 freighter launched (security permitting). Kuehne+Nagel buying air capacity aggressively. Jet fuel shortages creating competing pressure on air as alternative mode.",
+      "ITS Logistics (Apr 23): Truckload spot rates in sustained rally, structural capacity tightening. UPS implemented temporary surcharge. Fuel surcharges cascading — Australia +44%, Thailand +30%. DHL Transit Disruption Surcharge (TDS) now standard across all modes.",
+      "Iran overland fully closed since Feb 28. Caucasus (Azerbaijan-Georgia) adds 4-6 days. DSV capital markets day May 12 — road freight in Europe a key analyst watch topic.",
+    ],
+  },
+
+  warehousing: {
+    threat: "HIGH",
+    bullets: [
+      "DHL (all country advisories — current): 'Port congestion and hidden costs require immediate action. Congestion intensifying at Jeddah, Khorfakkan, Sohar, Fujairah and Salalah. Customers strongly advised to act quickly once cargo arrives.' Dwell times up to 10 days. DGF Crisis Calls activated daily.",
+      "MSC suspended all export bookings from Sohar and Salalah. MSC arranging vessel connections to Gulf for containers discharged in India and Sri Lanka — connections limited. Extended free time no longer applies on diverted shipments.",
+      "PwC (Apr 25): ~500,000 containers stranded across Gulf logistics networks. BCG: aluminium (80% of Middle East trade disrupted), petrochemicals, helium, methanol, fertilisers — Middle East = 10-30% of global capacity across key chemicals.",
+      "Loadstar (Apr 27): port congestion and inland logistics bottlenecks now primary constraint on global supply chains. Air freight in Gulf recovering at slower pace than during peak conflict. DHL B777 Leipzig-Dubai service being added.",
+      "Bernstein (Apr 27): Kuehne+Nagel and DSV benefiting from war-driven disruption. Air freight volumes growing high single-digit YoY. Freight rates expected to fall gradually after peace deal — pre-conflict trading patterns may not fully return.",
+    ],
+  },
+
+  ocean: {
+    threat: "CRITICAL",
+    bullets: [
+      "DHL (current — all country advisories): 'Strait of Hormuz effectively closed. No commercial container shipping at this time.' After brief opening: 'Again officially closed due to ongoing US blockade of Iranian ports. Carriers yet to announce plans for return.' ALL major carriers halted Gulf bookings. Surcharges escalating.",
+      "CARRIER STATUS (DHL compiled): MSC — EoV (Mar 3), $800/container surcharge, export suspension Sohar/Salalah; CMA CGM — Clause 10 activated, Advisory #10 fuel all modes, booking halt; Maersk — Op.Update 8, FM1/ME11 suspended, EBS 2026 weekly FSC; Hapag-Lloyd — Gulf except Jeddah, WRS $1,500/TEU; Evergreen fuel +60%; ONE CEO: up to 100 vessels in region.",
+      "FUEL CRISIS: Evergreen fuel costs up 60% since Feb 28 (Loadstar Apr 27). CMA CGM Customer Advisory #10: 'Fuel costs under significant upward pressure — impacting sea AND inland operations across all modes.' ONE, Maersk, CMA CGM, Hapag-Lloyd, MSC all issued emergency fuel/bunker surcharges in March 2026.",
+      "SCHEDULE RELIABILITY: Sea Intelligence (Loadstar Apr 27): 'Container shipping settling into new normal of lower schedule reliability.' 26 containerships still broadcasting MEG destinations despite carrier notices. Feeder ship availability tightening globally. Newbuild delivery waits increasing.",
+      "POST-DEAL OUTLOOK: Bernstein (Apr 27): 'Freight rates may fall after peace deal but decline likely gradual — pre-conflict trading patterns may not fully return.' Goldman Sachs: Brent Q4 avg $90/bbl — extreme inventory draws. JPMorgan: OECD inventories hit operational minimums May 9-30 — prices exponential after.",
+    ],
+  },
+
+  pulse: [
+    { label: "Brent Q4 Forecast", value: "$90/bbl avg (Goldman)", trend: "up", note: "Bloomberg Apr 27: extreme draws; $30 above pre-Hormuz" },
+    { label: "OECD Inventory Threshold", value: "May 9-30 (JPMorgan)", trend: "up", note: "Operational minimums — prices exponential after" },
+    { label: "Evergreen Fuel Costs", value: "+60% since Feb 28", trend: "up", note: "Loadstar Apr 27; CMA CGM #10: inland + sea all modes" },
+    { label: "Asia-Europe Spot Rate", value: "~$3,300-3,500/FEU", trend: "up", note: "Bernstein: rates fall gradually post-deal, not snap back" },
+    { label: "Schedule Reliability", value: "New low (Sea Intelligence)", trend: "down", note: "Loadstar Apr 27: 'new normal' of lower reliability" },
+    { label: "Air Freight Volumes", value: "+High single-digit YoY", trend: "up", note: "Bernstein: KN/DSV benefiting; jet fuel shortage risk" },
+    { label: "Global Trade Growth 2026", value: "1.5-2.5% (UNCTAD)", trend: "down", note: "Down from 4.7% in 2025; 3.4bn people high vulnerability" },
+    { label: "Containers Stranded", value: "~500,000 TEU (PwC)", trend: "up", note: "MSC 109k + Maersk 70k TEU marooned — Lloyd's List" },
+  ],
+
+  outlook: [
+    "DEAL SCENARIO (Rubio: 'better than expected'): If Phase 1 agreed this week — Hormuz reopens, US lifts port blockade. Brent drops $10-15 immediately. But Bernstein: freight rates fall gradually, not snap back. Carriers need 2-3 weeks before crews feel safe to transit; ports take 2 months to fully reopen; production takes 4 months to recover 99% capacity (JPMorgan). Landbridge and Cape routing remain economically rational for Q3 even after deal.",
+    "NO DEAL SCENARIO: Trump likely rejects proposal as it defers nuclear question to Phase 2. JPMorgan's May 9-30 inventory threshold approaches. Goldman Sachs bear case: oil into triple digits, growth deteriorates markedly. 30-nation naval escort mission (UK-France-Germany) weeks away from deployment even if ceasefire holds.",
+    "STRUCTURAL SHIFT CONSENSUS (Loadstar, Bernstein, BCG, PwC): Container shipping has entered a 'new normal' of lower schedule reliability. Supply chains have adjusted. KN, DSV, DHL positioned to benefit from sustained disruption — suggesting industry expects no quick resolution. DSV capital markets day May 12 will be a key indicator.",
+  ],
+
+  corridors: [
+    { icon: "🚛", title: "TURKEY-IRAQ-JORDAN DEVELOPMENT ROAD", col: "#208050", status: "OPERATIONAL — DHL + LOADSTAR RECOMMENDED",
+      items: ["DHL recommending across ALL country advisories (US, UK, DE, HK, IL)", "Loadstar Apr 24: primary landbridge for Gulf-cut-off markets", "Transit: ~10 days Europe to GCC — fastest available", "Operators: DHL, DB Schenker, DSV, Hapag-Lloyd all active", "April 7 Amman MOU (Syria-Jordan-Turkey) backing — capacity tightening"] },
+    { icon: "📦", title: "DHL MULTI-GATEWAY LCL (JEDDAH / DUQM)", col: "#208050", status: "ACTIVE — MSC SOHAR/SALALAH WORKAROUND",
+      items: ["MSC suspended exports Sohar/Salalah — DHL LCL via Duqm or Jeddah is the workaround", "Cost-efficient for smaller volumes where FCL and air too expensive", "Jeddah accepts DG; Sohar/Salalah DG via carrier approval only", "DHL Crisis Calls activated — real-time exception handling", "Contact DHL with subject 'Middle East contingency' for options"] },
+    { icon: "✈", title: "SEA-AIR HYBRID + DHL B777 LEIPZIG-DUBAI", col: "#a09030", status: "ACTIVE — BOOK EARLY / JET FUEL RISK",
+      items: ["DHL launching B777 freighter Leipzig-Dubai (security permitting)", "Kuehne+Nagel buying air capacity aggressively (Loadstar Apr 27)", "Cost: $6-8/kg — justified for pharma, food, semiconductors", "Jet fuel shortage creating competing pressure — book early", "Bernstein: air freight volumes growing high single-digit YoY"] },
+    { icon: "🚂", title: "CHINA-EUROPE RAIL (KAZAKHSTAN-RUSSIA)", col: "#a09030", status: "SURGING +40% VOLUME",
+      items: ["Transit: 18-22 days; Loadstar: gaining as structural alternative", "Almaty/Tashkent accepting Gulf transshipment cargo", "Check Russia sanction compliance before booking", "DSV capital markets day May 12 — rail strategy a key topic", "Not for temperature-sensitive cargo; 5-7 day booking lead time"] },
+    { icon: "⚓", title: "OMAN BYPASS + PIPELINE ALTERNATIVE", col: "#a09030", status: "VIABLE — WATCH DEAL THIS WEEK",
+      items: ["Duqm: operational, Arabian Sea, outside Hormuz chokepoint", "Saudi Yanbu + UAE Fujairah + Iraq Kirkuk-Ceyhan: ~9M bpd combined", "Germany offering minesweeper deployment after permanent ceasefire", "If Iran deal agreed this week: Duqm/Sohar become transition hubs", "Bernstein: pre-conflict port patterns may not return even post-deal"] },
+  ],
+
+  portStatus: [
+    { name: "Jebel Ali", status: "CONGESTED", col: "#d06020", note: "Maersk EoV; empty returns suspended; essential cargo only" },
+    { name: "Khorfakkan", status: "NO EXPORTS", col: "#c03020", note: "DHL: not accepting export containers; 7-10 day waits" },
+    { name: "Jeddah", status: "SATURATED", col: "#c03020", note: "Dwell 10+ days; DG accepted; LCL hub for alternatives" },
+    { name: "Salalah", status: "MSC SUSPENDED", col: "#c09020", note: "MSC exports suspended; ISPS Level 2" },
+    { name: "Sohar", status: "MSC SUSPENDED", col: "#c09020", note: "MSC exports suspended; DG via carrier approval only" },
+    { name: "Duqm", status: "OPERATIONAL", col: "#208050", note: "Arabian Sea; outside Hormuz; DHL LCL alternative hub" },
+    { name: "Abu Dhabi (DXB/DWC)", status: "RECOVERING", col: "#a08020", note: "DHL B777 Leipzig-DXB launching; 70-80% capacity" },
+    { name: "Singapore", status: "CONGESTED", col: "#c09020", note: "Vessel bunching; feeder availability tightening" },
+  ],
+
+  sources: [
+    { cat: "🚨 BREAKING (Apr 28)", items: ["Al Jazeera live (08:00 GMT): Iran offers Hormuz for blockade lift; Trump NSC reviewing", "PBS News (Apr 27): Iran proposal — nuclear deferred Phase 2; Trump 'likely to reject'", "CNN (Apr 27): Rubio 'better than expected'; staged deal framework; back-channel diplomacy", "Wikipedia: 2026 Iran war ceasefire (updated 2hrs ago); UK House of Commons Library (Apr 28)"] },
+    { cat: "🚢 SHIPPING LINES", items: ["Maersk: Op.Update 8 (Mar 11) + Apr 22 update; EBS 2026 weekly FSC; empty return suspension", "MSC: EoV declaration (Mar 3); $800/container surcharge; export suspension Sohar/Salalah", "CMA CGM: Customer Advisory #10 (fuel — ALL modes); Clause 10 activation; booking halt", "Hapag-Lloyd: Gulf suspension except Jeddah; WRS $1,500/TEU", "Evergreen: fuel costs +60% since Feb 28 (Loadstar Apr 27)", "Lloyd's List: live vessel tracking, liner exodus analysis, feeder tightening (Apr 27)", "The Loadstar: landbridge Apr 24; schedule reliability/Sea Intelligence Apr 27", "ONE CEO Jeremy Nixon: up to 100 vessels in region (NDTA Mar 11)"] },
+    { cat: "🏢 LOGISTICS FIRMS", items: ["DHL Global Forwarding: US, UK, DE, HK, IL, BG advisories (current) — port status, surcharges, LCL, landbridge", "DHL CEO Tobias Meyer: Bloomberg TV Apr 21 — 'tipping point' warning; routes tightening all modes", "DHL: Leipzig-Dubai B777 freighter launching; Asia-Europe air freight expansion (Mar 30)", "DHL: Navigation Disruption webinar Apr 9 — Gulf air freight recovery at slower pace", "Kuehne+Nagel: buying air capacity aggressively; earnings upside (Loadstar Apr 27)", "DSV: capital markets day May 12; Bernstein: 'meaningful upside potential'", "Crane Worldwide: port advisory Apr 23 — Jeddah saturation, Jebel Ali status", "ITS Logistics: April Supply Chain Report (Apr 23) — inflation, LMI, trucking, ocean"] },
+    { cat: "🏦 BANKS & CONSULTING", items: ["Goldman Sachs: Q2 2026 Market Know-How — tactical defensiveness, stagflation hedges", "Goldman Sachs (Bloomberg Apr 27): Brent Q4 avg $90 — extreme inventory draws, $30 above pre-Hormuz", "JPMorgan: operational minimums May 9-30 — prices exponential after threshold", "Trafigura (Saad Rahim): 1B barrels disappeared; Gunvor: 'tank bottoms' risk", "Bernstein (Apr 27): KN/DSV earnings upside; rates fall gradually post-deal; patterns may not return", "BCG: aluminium, petrochemicals, fertilisers, helium, methanol — all disrupted", "PwC (Apr 25): 500,000 TEU stranded; structural redesign required", "UNCTAD: global trade 1.5-2.5% 2026; 3.4bn people high vulnerability"] },
+  ],
+
+  statusItems: [
+    { l: "HORMUZ", s: "DEAL POSSIBLE", c: "#a09030", pulse: false },
+    { l: "RED SEA", s: "CLOSED", c: "#c02018", pulse: true },
+    { l: "SUEZ", s: "SUSPENDED", c: "#a04818", pulse: false },
+    { l: "CAPE", s: "ACTIVE DEFAULT", c: "#208050", pulse: false },
+    { l: "JEDDAH", s: "SATURATED", c: "#c02018", pulse: true },
+    { l: "SOHAR/SALALAH", s: "MSC SUSPENDED", c: "#c02018", pulse: true },
+    { l: "TK-IQ BRIDGE", s: "OPERATIONAL", c: "#208050", pulse: false },
+    { l: "MAY 9-30", s: "CRITICAL WINDOW", c: "#c02018", pulse: true },
+  ],
+
+  tickers: [
+    "BREAKING: IRAN OFFERS TO REOPEN HORMUZ IF US LIFTS NAVAL BLOCKADE  |  TRUMP NSC REVIEWING — AL JAZEERA 08:00 GMT",
+    "RUBIO: IRAN PROPOSAL 'BETTER THAN EXPECTED'  |  NUCLEAR ISSUE DEFERRED TO PHASE 2  |  DEAL POSSIBLE THIS WEEK",
+    "DHL CEO TOBIAS MEYER: GULF DISRUPTION PUSHING GLOBAL ECONOMY TO 'TIPPING POINT'",
+    "EVERGREEN FUEL COSTS UP 60% SINCE FEB 28  |  CMA CGM #10: FUEL PRESSURE HIT ALL MODES",
+    "MSC: EXPORT BOOKINGS SUSPENDED AT SOHAR AND SALALAH UNTIL FURTHER NOTICE",
+    "BERNSTEIN: KN + DSV EARNINGS UPSIDE FROM DISRUPTION  |  RATES FALL GRADUALLY AFTER DEAL",
+    "LOADSTAR APR 27: SHIPPING ENTERING 'NEW NORMAL' OF LOWER SCHEDULE RELIABILITY",
+    "JPMORGAN: OECD OIL INVENTORIES HIT OPERATIONAL MINIMUMS MAY 9-30  |  PRICES GO EXPONENTIAL",
+    "GOLDMAN SACHS: BRENT Q4 AVG $90/BBL  |  EXTREME INVENTORY DRAWS  |  $30 ABOVE PRE-HORMUZ FORECAST",
+    "UN SECRETARY-GENERAL: HORMUZ STANDOFF RISKS TRIGGERING GLOBAL FOOD EMERGENCY",
+    "DHL LAUNCHING B777 FREIGHTER LEIPZIG-DUBAI  |  KUEHNE+NAGEL BUYING AIR CAPACITY AGGRESSIVELY",
+    "DSV CAPITAL MARKETS DAY MAY 12  |  ANALYSTS: 'MEANINGFUL UPSIDE POTENTIAL'",
+  ],
+};
+
+// ══ THREAT COLOURS ══
+const THREAT = {
+  CRITICAL: { bg: "#8a1810", glow: "#c02018", bar: "#c02018" },
+  HIGH:     { bg: "#7a3010", glow: "#b04818", bar: "#b04818" },
+  ELEVATED: { bg: "#6a5008", glow: "#a07810", bar: "#a07810" },
+  MODERATE: { bg: "#0a3858", glow: "#1860a0", bar: "#1860a0" },
+};
+
+function badge(level) {
+  const s = THREAT[level] || THREAT.MODERATE;
+  return `<span class="badge" style="background:${s.bg};box-shadow:0 0 8px ${s.glow}55">
+    <span class="badge-dot" style="background:${s.glow}"></span>${level}
+  </span>`;
+}
+function bullet(text, color) {
+  return `<div class="bullet"><span class="bullet-diamond" style="color:${color||'var(--blue)'}">◆</span><span class="bullet-text">${text}</span></div>`;
+}
+function card(icon, title, threat, accentColor, inner) {
+  const col = accentColor || (threat === "CRITICAL" ? "#c02018" : threat === "HIGH" ? "#b04818" : "#3a78b8");
+  return `<div class="card" style="border-left:3px solid ${col};box-shadow:-2px 0 16px ${col}18">
+    <div class="card-head">
+      <div class="card-title"><span class="card-icon">${icon}</span><span class="card-name">${title}</span></div>
+      ${threat ? badge(threat) : ""}
+    </div>
+    ${inner}
+  </div>`;
+}
+function sectionHead(title, sub) {
+  return `<div class="section-head"><div class="title">${title}</div>${sub ? `<div class="sub">${sub}</div>` : ""}</div>`;
+}
+
+// ══ TAB RENDERING ══
+function renderBriefing() {
+  let h = sectionHead("MERIDIAN DAILY LOGISTICS BRIEFING", `${INTEL.updated} | DEFCON: ${INTEL.defcon}`);
+
+  // Situation
+  h += card("🌐", "SITUATION OVERVIEW", null, "#3a78b8",
+    INTEL.situation.map(s => `<p class="situation-p">${s}</p>`).join(""));
+
+  // Flash alerts
+  h += `<div id="flash-card">
+    <div class="flash-head"><span>⚡</span><span class="flash-title">FLASH ALERTS — TIME-CRITICAL</span></div>
+    ${INTEL.flash.map((f,i) => `<div class="flash-item"><span class="flash-num">!${i+1}</span><span class="flash-text">${f}</span></div>`).join("")}
+  </div>`;
+
+  // Sectors
+  h += card("🚛", "ROAD TRANSPORT", INTEL.road.threat, null, INTEL.road.bullets.map(b => bullet(b)).join(""));
+  h += card("🏭", "WAREHOUSING", INTEL.warehousing.threat, null, INTEL.warehousing.bullets.map(b => bullet(b)).join(""));
+  h += card("🚢", "OCEAN FREIGHT", INTEL.ocean.threat, "#c02018", INTEL.ocean.bullets.map(b => bullet(b, "#c02018")).join(""));
+
+  // Pulse
+  h += card("📊", "MARKET PULSE", null, "#3a78b8",
+    INTEL.pulse.map(p => {
+      const col = p.trend === "up" ? "#c03020" : "#208050";
+      const arrow = p.trend === "up" ? "↑" : "↓";
+      return `<div class="pulse-row">
+        <span class="pulse-label">${p.label}</span>
+        <div class="pulse-right">
+          <div class="pulse-value">${p.value} <span class="pulse-arrow" style="color:${col}">${arrow}</span></div>
+          <div class="pulse-note">${p.note}</div>
+        </div>
+      </div>`;
+    }).join(""));
+
+  // Outlook
+  h += card("🔭", "72-HOUR OUTLOOK — DEAL VS NO-DEAL + STRUCTURAL SHIFT", null, "#3a78b8",
+    INTEL.outlook.map(o => `<p class="situation-p">${o}</p>`).join(""));
+
+  // Footer
+  h += `<div id="footer">
+    <div class="line1">MERIDIAN v7.1 · ${INTEL.updated} · FULL ATTRIBUTION IN SOURCES TAB</div>
+    <div>MAERSK · MSC · CMA CGM · HAPAG-LLOYD · EVERGREEN · DHL · KN · DSV · LLOYD'S LIST · LOADSTAR · GOLDMAN · JPMORGAN · BERNSTEIN · BCG · PwC · UNCTAD</div>
+  </div>`;
+
+  return h;
+}
+
+function renderPorts() {
+  let h = sectionHead("PORT &amp; GATEWAY STATUS — CARRIER CONFIRMED", INTEL.updated);
+
+  // Port grid
+  const grid = INTEL.portStatus.map(p => `<div class="port-item">
+    <div class="port-head">
+      <span class="port-dot ${(p.status==="SATURATED"||p.status==="CONGESTED"||p.status==="NO EXPORTS"||p.status==="MSC SUSPENDED")?"pulse":""}" style="background:${p.col}"></span>
+      <span class="port-name">${p.name}</span>
+      <span class="port-status" style="color:${p.col}">${p.status}</span>
+    </div>
+    <div class="port-note">${p.note}</div>
+  </div>`).join("");
+
+  h += card("🗺", "PORT STATUS MATRIX", null, "#3a78b8", `<div id="port-grid">${grid}</div>`);
+
+  h += card("📋", "CARRIER ACTIONS — OFFICIAL ADVISORIES", null, "#3a78b8", [
+    "Maersk: Op.Update 8 (Mar 11) + Apr 22 update. EBS 2026 weekly FSC. Essential cargo only. FM1/ME11 suspended. Empty returns to designated depots only.",
+    "MSC: EoV declared (Mar 3), $800/container diversion, 19th-century maritime law. Export bookings SUSPENDED at Sohar and Salalah.",
+    "CMA CGM: Customer Advisory #10 — fuel pressure hit sea AND inland all modes. Clause 10 activated. Broad booking halt. ECS $2,000/20ft, $3,000/40ft, $4,000 reefer.",
+    "Hapag-Lloyd: No Gulf bookings except Jeddah. WRS $1,500/TEU. Nils Haupt: 'Not a lot we can do — waiting for maritime certainty.'",
+    "Evergreen: Fuel costs +60% since Feb 28. Broad Upper Gulf suspension.",
+    "ONE CEO Jeremy Nixon: Up to 100 vessels in region. Feeder ship availability tightening globally.",
+    "DHL (all advisories): Hormuz 'effectively closed — no commercial container shipping at this time.' Crisis Calls activated daily.",
+  ].map(b => bullet(b)).join(""));
+
+  return h;
+}
+
+function renderCorridors() {
+  let h = sectionHead("ALTERNATIVE CORRIDOR WATCH", INTEL.updated);
+  h += INTEL.corridors.map(c => card(c.icon, c.title, null, c.col,
+    `<div class="corridor-status">
+      <span class="corridor-dot" style="background:${c.col}"></span>
+      <span class="corridor-label" style="color:${c.col}">${c.status}</span>
+    </div>` +
+    c.items.map(d => bullet(d, c.col)).join("")
+  )).join("");
+  return h;
+}
+
+function renderSources() {
+  let h = sectionHead("INTELLIGENCE SOURCES — FULL ATTRIBUTION", INTEL.updated);
+  const icons = ["🚨","🚢","🏢","🏦"];
+  const cols = ["#c02018","#3a78b8","#3a78b8","#3a78b8"];
+  h += INTEL.sources.map((s,i) =>
+    card(icons[i]||"📋", s.cat, null, cols[i]||"#3a78b8",
+      s.items.map(b => bullet(b)).join(""))
+  ).join("");
+  h += `<div class="source-note">
+    <div class="source-note-title">FT PAYWALL NOTE</div>
+    <div class="source-note-text">ft.com and ft.trib.al are paywalled. FT content is captured via syndication (This Day Live, Threads @financialtimes, NDTA, Automotive Logistics, PBS/AP). Paste key FT paragraphs directly into the chat to include them verbatim in the next refresh.</div>
+  </div>`;
+  return h;
+}
+
+// ══ TAB SWITCHING ══
+let currentTab = "briefing";
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderContent();
+}
+function renderContent() {
+  const el = document.getElementById("content");
+  el.style.animation = "none"; el.offsetHeight; el.style.animation = "";
+  if (currentTab === "briefing") el.innerHTML = renderBriefing();
+  else if (currentTab === "ports") el.innerHTML = renderPorts();
+  else if (currentTab === "corridors") el.innerHTML = renderCorridors();
+  else el.innerHTML = renderSources();
+}
+
+// ══ STATUS BAR ══
+function buildStatusBar() {
+  const bar = document.getElementById("statusbar");
+  bar.innerHTML = INTEL.statusItems.map(s => `
+    <div class="status-item">
+      <span class="status-dot ${s.pulse?"pulse":""}" style="background:${s.c}"></span>
+      <span class="status-label">${s.l}</span>
+      <span class="status-val" style="color:${s.c}">${s.s}</span>
+    </div>`).join("");
+}
+
+// ══ TICKER ══
+let tickerPos = 0;
+let tickerTotal = 0;
+function initTicker() {
+  const full = INTEL.tickers.join("     ◆     ");
+  const inner = document.getElementById("ticker-inner");
+  inner.textContent = full + "     ◆     " + full;
+  tickerTotal = full.length * 7.7;
+  function animate() {
+    tickerPos = (tickerPos + 0.42) % tickerTotal;
+    inner.style.transform = `translateX(-${tickerPos}px)`;
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+}
+
+// ══ CLOCKS ══
+function updateClocks() {
+  const now = new Date();
+  document.getElementById("gmt-clock").textContent = now.toUTCString().slice(17, 25);
+
+  const diff = new Date(INTEL.ceasefireExpiry) - now;
+  if (diff <= 0) { document.getElementById("countdown").textContent = "ACTIVE"; return; }
+  const d = Math.floor(diff/86400000), hh = Math.floor((diff%86400000)/3600000);
+  const mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
+  document.getElementById("countdown").textContent =
+    `${d}D ${String(hh).padStart(2,"0")}H ${String(mm).padStart(2,"0")}M ${String(ss).padStart(2,"0")}S`;
+}
+
+// ══ INIT ══
+buildStatusBar();
+initTicker();
+renderContent();
+setInterval(updateClocks, 1000);
+updateClocks();
+</script>
+</body>
+</html>
