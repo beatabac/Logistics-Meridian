@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,355 +7,807 @@
 <title>MERIDIAN | Logistics Intelligence</title>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  :root{--bg:#050d18;--bg2:#040c16;--blue:#3a78b8;--bdim:#1a3050;--bfnt:#0e2030;--red:#c02018;--org:#b04818;--grn:#208050;--gld:#a09030;--txt:#c0cdd8;--tdm:#8090a8;--tft:#6888a8;--bdr:rgba(255,255,255,0.055);}
+  :root{
+    --bg:#050d18;--bg2:#040c16;--bg3:#08101e;
+    --blue:#3a78b8;--bdim:#1a3050;--bfnt:#0e2030;
+    --red:#c02018;--org:#b04818;--grn:#208050;--gld:#a09030;
+    --txt:#c0cdd8;--tdm:#8090a8;--tft:#6888a8;
+    --bdr:rgba(255,255,255,0.055);
+  }
   html,body{height:100%;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,sans-serif;font-size:14px;}
-  button{cursor:pointer;font-family:inherit;}p{margin-bottom:8px;}
-  ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-thumb{background:var(--bdim);border-radius:2px;}
-  @keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
-  @keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-  #app{display:flex;flex-direction:column;min-height:100vh;}
-  /* HEADER */
-  #hdr{background:var(--bg2);border-bottom:1px solid rgba(58,120,184,.15);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:50;}
-  #logo{display:flex;align-items:center;gap:10px;}
-  #lc{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--blue);display:flex;align-items:center;justify-content:center;background:rgba(58,120,184,.08);box-shadow:0 0 12px rgba(58,120,184,.3);font-size:15px;}
-  .ln{font-family:monospace;font-weight:700;font-size:14px;color:var(--blue);letter-spacing:3px;}
-  .ls{font-size:8px;color:var(--bdim);letter-spacing:2px;font-family:monospace;}
-  #hr{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-  .hb{background:rgba(12,25,40,.9);border-radius:4px;padding:5px 11px;text-align:center;}
-  .hb .hl{font-size:8px;font-family:monospace;letter-spacing:1px;white-space:nowrap;}
-  .hb .hv{font-family:monospace;font-size:12px;font-weight:700;white-space:nowrap;}
-  .cb{border:1px solid rgba(200,50,35,.5);background:rgba(168,24,16,.2);}.cb .hl{color:#a03020;}.cb .hv{color:#d84030;animation:pulse 1.2s infinite;}
-  .gb{border:1px solid rgba(58,120,184,.15);}.gb .hl{color:var(--bdim);}.gb .hv{color:#4870a0;}
-  /* TICKER */
-  #tkr{overflow:hidden;background:rgba(160,30,20,.2);border-bottom:1px solid rgba(180,50,35,.4);padding:5px 0;display:flex;align-items:center;flex-shrink:0;}
-  #tl{background:#a81810;color:#fff;padding:3px 12px;font-size:9px;font-weight:700;letter-spacing:2px;font-family:monospace;flex-shrink:0;}
-  #tw{overflow:hidden;flex:1;}#ti{white-space:nowrap;font-size:10px;color:#b86858;font-family:monospace;padding:0 20px;letter-spacing:.3px;will-change:transform;}
-  /* STATUS BAR */
-  #sb{background:rgba(4,12,22,.85);border-bottom:1px solid rgba(255,255,255,.035);padding:4px 16px;display:flex;gap:18px;overflow-x:auto;flex-shrink:0;}
-  .si{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-  .sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;}.sd.p{animation:pulse 1s infinite;}
-  .sl{font-family:monospace;font-size:9px;color:var(--bdim);}.sv{font-family:monospace;font-size:9px;}
-  /* TABS */
-  #tb{background:rgba(4,12,22,.7);border-bottom:1px solid rgba(255,255,255,.035);padding:0 16px;display:flex;flex-shrink:0;}
-  .tab{padding:9px 14px;background:transparent;color:var(--bdim);border:none;border-bottom:2px solid transparent;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:1px;transition:all .2s;}
-  .tab.a{color:var(--blue);border-bottom-color:var(--blue);}
-  /* CONTENT */
-  #cnt{flex:1;max-width:860px;width:100%;margin:0 auto;padding:14px;animation:fadein .35s ease;}
-  /* CARDS */
-  .card{background:rgba(8,16,28,.97);border:1px solid var(--bdr);border-radius:5px;padding:15px 17px;margin-bottom:9px;}
-  .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
-  .ct{display:flex;align-items:center;gap:7px;}
-  .cn{color:#c0d0e0;font-size:12px;font-weight:600;font-family:monospace;letter-spacing:.5px;}
-  .badge{display:inline-flex;align-items:center;gap:5px;padding:2px 10px 2px 6px;border-radius:2px;color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;font-family:monospace;}
-  .bd{width:5px;height:5px;border-radius:50%;animation:pulse 1.4s infinite;}
-  .bul{display:flex;gap:9px;margin-bottom:8px;align-items:flex-start;}
-  .bdia{font-size:8px;margin-top:5px;flex-shrink:0;}
-  .btxt{color:var(--tdm);font-size:12px;line-height:1.7;}
-  /* FLASH */
-  #fc{background:linear-gradient(135deg,rgba(140,20,12,.22),rgba(140,20,12,.07));border:1px solid rgba(180,40,28,.4);border-radius:5px;padding:14px 17px;margin-bottom:9px;}
-  .fh{display:flex;align-items:center;gap:7px;margin-bottom:11px;}
-  .ft{color:var(--red);font-size:11px;font-weight:700;font-family:monospace;letter-spacing:1.5px;}
-  .fi{display:flex;gap:9px;margin-bottom:9px;align-items:flex-start;}
-  .fn{color:var(--red);font-family:monospace;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px;}
-  .fx{color:#907880;font-size:12px;line-height:1.65;}
-  /* SEC HEAD */
-  .sh{margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid rgba(58,120,184,.12);}
-  .sh .t{font-family:monospace;font-size:10px;color:var(--blue);letter-spacing:1px;}
-  .sh .s{font-family:monospace;font-size:9px;color:var(--bdim);margin-top:2px;}
-  .sp{color:var(--tft);font-size:12px;line-height:1.75;margin-bottom:8px;}
-  /* PULSE */
-  .pr{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
-  .pl{color:#405870;font-size:11px;font-family:monospace;flex-shrink:0;margin-right:8px;}
-  .prt{text-align:right;}.pv{color:#c0d0e0;font-size:11px;font-family:monospace;}.pa{font-size:13px;}.pn{color:#304050;font-size:9px;font-family:monospace;}
-  /* PORTS */
-  #pg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-  .pi{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:3px;padding:8px 10px;}
-  .ph{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
-  .pdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
-  .pnam{font-family:monospace;font-size:10px;font-weight:700;color:#a0b8d0;}
-  .pst{font-family:monospace;font-size:8px;margin-left:auto;}
-  .pno{font-size:10px;color:#4a6078;padding-left:10px;}
-  /* CORRIDOR */
-  .cs{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
-  .cdot{width:6px;height:6px;border-radius:50%;}
-  .clbl{font-family:monospace;font-size:9px;letter-spacing:1px;}
-  /* SOURCE NOTE */
-  .sn{margin-top:8px;padding:10px 12px;background:rgba(58,120,184,.05);border:1px solid rgba(58,120,184,.12);border-radius:4px;}
-  .snt{font-size:10px;color:var(--blue);font-family:monospace;margin-bottom:4px;}
-  .snb{font-size:10px;color:#405870;line-height:1.6;}
-  /* FOOTER */
-  #ftr{padding-top:8px;border-top:1px solid rgba(255,255,255,.035);font-size:9px;color:var(--bfnt);font-family:monospace;}
-  #ftr .f1{margin-bottom:3px;color:var(--bdim);}
-  @media(max-width:600px){#pg{grid-template-columns:1fr;}.tab{padding:9px 10px;font-size:9px;}}
+  button{cursor:pointer;font-family:inherit;}
+  p{margin-bottom:8px;}
+  a{color:var(--blue);text-decoration:none;}
+  ::-webkit-scrollbar{width:4px;height:4px;}
+  ::-webkit-scrollbar-thumb{background:var(--bdim);border-radius:2px;}
+
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slidein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── APP SHELL ── */
+#app{display:flex;flex-direction:column;min-height:100vh;}
+
+/* ── HEADER ── */
+#hdr{
+background:var(–bg2);
+border-bottom:1px solid rgba(58,120,184,.15);
+padding:10px 16px;
+display:flex;align-items:center;justify-content:space-between;
+gap:8px;flex-wrap:wrap;
+position:sticky;top:0;z-index:100;
+}
+#logo{display:flex;align-items:center;gap:10px;}
+#lc{
+width:32px;height:32px;border-radius:50%;
+border:1.5px solid var(–blue);
+display:flex;align-items:center;justify-content:center;
+background:rgba(58,120,184,.08);
+box-shadow:0 0 12px rgba(58,120,184,.3);
+font-size:15px;
+}
+.ln{font-family:monospace;font-weight:700;font-size:14px;color:var(–blue);letter-spacing:3px;}
+.ls{font-size:8px;color:var(–bdim);letter-spacing:2px;font-family:monospace;}
+#hdr-right{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+
+/* ── HEADER BOXES ── */
+.hb{background:rgba(12,25,40,.9);border-radius:4px;padding:5px 11px;text-align:center;border:1px solid transparent;}
+.hb .hl{font-size:8px;font-family:monospace;letter-spacing:1px;white-space:nowrap;display:block;}
+.hb .hv{font-family:monospace;font-size:12px;font-weight:700;white-space:nowrap;display:block;}
+.cb{border-color:rgba(200,50,35,.5);background:rgba(168,24,16,.2);}
+.cb .hl{color:#a03020;}.cb .hv{color:#d84030;animation:pulse 1.2s infinite;}
+.gb{border-color:rgba(58,120,184,.15);}.gb .hl{color:var(–bdim);}.gb .hv{color:#4870a0;}
+
+/* ── REFRESH BUTTON ── */
+#refresh-btn{
+padding:6px 12px;
+background:transparent;
+border:1px solid rgba(58,120,184,.3);
+border-radius:3px;
+color:var(–blue);
+font-family:monospace;font-size:9px;font-weight:700;letter-spacing:1px;
+cursor:pointer;transition:all .2s;
+display:flex;align-items:center;gap:5px;
+}
+#refresh-btn:hover{background:rgba(58,120,184,.1);border-color:rgba(58,120,184,.6);}
+#refresh-btn.loading{color:var(–bdim);border-color:rgba(26,48,80,.4);cursor:not-allowed;}
+#refresh-btn .spin{display:none;width:8px;height:8px;border:1.5px solid var(–bdim);border-top-color:var(–blue);border-radius:50%;animation:spin .8s linear infinite;}
+#refresh-btn.loading .spin{display:inline-block;}
+
+/* ── UPDATE BANNER ── */
+#update-banner{
+background:rgba(32,128,80,.08);
+border-bottom:1px solid rgba(32,128,80,.15);
+padding:4px 16px;
+display:none;
+align-items:center;
+justify-content:space-between;
+font-family:monospace;font-size:9px;
+flex-shrink:0;
+}
+#update-banner .ub-left{color:#40a870;}
+#update-banner .ub-right{color:var(–bdim);}
+
+/* ── TICKER ── */
+#tkr{
+overflow:hidden;background:rgba(160,30,20,.2);
+border-bottom:1px solid rgba(180,50,35,.4);
+padding:5px 0;display:flex;align-items:center;flex-shrink:0;
+}
+#tl{background:#a81810;color:#fff;padding:3px 12px;font-size:9px;font-weight:700;letter-spacing:2px;font-family:monospace;flex-shrink:0;}
+#tw{overflow:hidden;flex:1;}
+#ti{white-space:nowrap;font-size:10px;color:#b86858;font-family:monospace;padding:0 20px;letter-spacing:.3px;will-change:transform;}
+
+/* ── STATUS BAR ── */
+#sb{
+background:rgba(4,12,22,.85);
+border-bottom:1px solid rgba(255,255,255,.035);
+padding:4px 16px;display:flex;gap:18px;overflow-x:auto;flex-shrink:0;
+}
+.si{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.sd{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.sd.p{animation:pulse 1s infinite;}
+.sl{font-family:monospace;font-size:9px;color:var(–bdim);}
+.sv{font-family:monospace;font-size:9px;}
+
+/* ── TABS ── */
+#tb{
+background:rgba(4,12,22,.9);
+border-bottom:1px solid rgba(58,120,184,.2);
+padding:8px 16px;display:flex;gap:6px;flex-shrink:0;
+}
+.tab{
+padding:7px 14px;
+background:rgba(255,255,255,.05);
+color:#6a8aaa;
+border:1px solid rgba(255,255,255,.08);
+border-radius:4px;
+font-family:monospace;font-size:10px;font-weight:700;letter-spacing:1px;
+transition:all .18s;
+}
+.tab.a{
+background:var(–blue);
+color:#fff;
+border-color:var(–blue);
+box-shadow:0 0 12px rgba(58,120,184,.4);
+}
+.tab:hover:not(.a){
+background:rgba(58,120,184,.15);
+color:#a0c0e0;
+border-color:rgba(58,120,184,.3);
+}
+
+/* ── CONTENT ── */
+#cnt{flex:1;max-width:860px;width:100%;margin:0 auto;padding:14px;}
+
+/* ── STATES ── */
+.state-box{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:40px 20px;}
+.spinner{width:36px;height:36px;border:2px solid rgba(58,120,184,.2);border-top-color:var(–blue);border-radius:50%;animation:spin .9s linear infinite;}
+.state-title{font-family:monospace;font-size:11px;color:var(–blue);letter-spacing:2px;}
+.state-sub{font-family:monospace;font-size:9px;color:var(–bdim);}
+
+/* ── ERROR ── */
+.err-box{background:rgba(192,57,43,.08);border:1px solid rgba(200,60,40,.25);border-radius:6px;padding:20px 24px;max-width:480px;text-align:center;}
+.err-title{color:#e74c3c;font-family:monospace;font-size:12px;font-weight:700;margin-bottom:8px;letter-spacing:1px;}
+.err-msg{color:#a08070;font-size:12px;line-height:1.7;margin-bottom:12px;font-family:monospace;}
+.err-hint{color:var(–bdim);font-family:monospace;font-size:10px;line-height:1.8;}
+.err-hint code{background:rgba(58,120,184,.1);padding:1px 5px;border-radius:2px;color:var(–blue);}
+.retry-btn{
+margin-top:12px;padding:7px 16px;
+background:rgba(58,120,184,.1);border:1px solid rgba(58,120,184,.3);
+border-radius:3px;color:var(–blue);
+font-family:monospace;font-size:10px;font-weight:700;letter-spacing:1px;
+cursor:pointer;transition:all .2s;
+}
+.retry-btn:hover{background:rgba(58,120,184,.2);}
+
+/* ── CARDS ── */
+.card{
+background:rgba(8,16,28,.97);
+border:1px solid var(–bdr);
+border-radius:5px;padding:15px 17px;margin-bottom:9px;
+animation:slidein .25s ease;
+}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.ct{display:flex;align-items:center;gap:7px;}
+.ci{font-size:15px;}
+.cn{color:#c0d0e0;font-size:12px;font-weight:600;font-family:monospace;letter-spacing:.5px;}
+
+/* ── BADGE ── */
+.badge{
+display:inline-flex;align-items:center;gap:5px;
+padding:2px 10px 2px 6px;border-radius:2px;
+color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;font-family:monospace;
+}
+.bd{width:5px;height:5px;border-radius:50%;animation:pulse 1.4s infinite;}
+
+/* ── BULLETS ── */
+.bul{display:flex;gap:9px;margin-bottom:8px;align-items:flex-start;}
+.bdia{font-size:8px;margin-top:5px;flex-shrink:0;}
+.btxt{color:var(–tdm);font-size:12px;line-height:1.7;}
+
+/* ── FLASH CARD ── */
+.flash-card{
+background:linear-gradient(135deg,rgba(140,20,12,.22),rgba(140,20,12,.06));
+border:1px solid rgba(180,40,28,.4);
+border-radius:5px;padding:14px 17px;margin-bottom:9px;
+animation:slidein .25s ease;
+}
+.fh{display:flex;align-items:center;gap:7px;margin-bottom:11px;}
+.ft{color:var(–red);font-size:11px;font-weight:700;font-family:monospace;letter-spacing:1.5px;}
+.fi{display:flex;gap:9px;margin-bottom:9px;align-items:flex-start;}
+.fn{color:var(–red);font-family:monospace;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.fx{color:#907880;font-size:12px;line-height:1.65;}
+
+/* ── SECTION HEADER ── */
+.sh{margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid rgba(58,120,184,.12);}
+.sh .t{font-family:monospace;font-size:10px;color:var(–blue);letter-spacing:1px;}
+.sh .s{font-family:monospace;font-size:9px;color:var(–bdim);margin-top:2px;}
+
+/* ── SITUATION TEXT ── */
+.sp{color:var(–tft);font-size:12px;line-height:1.75;margin-bottom:8px;}
+
+/* ── MARKET PULSE ROWS ── */
+.pr{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.pr:last-child{border-bottom:none;}
+.pl{color:#405870;font-size:11px;font-family:monospace;flex-shrink:0;margin-right:10px;}
+.prt{text-align:right;}
+.pv{color:#c0d0e0;font-size:11px;font-family:monospace;}
+.pa{font-size:13px;margin-left:3px;}
+.pn{color:#304050;font-size:9px;font-family:monospace;margin-top:1px;}
+
+/* ── PORT GRID ── */
+#pg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pi{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.05);border-radius:3px;padding:8px 10px;}
+.ph{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.pdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.pnam{font-family:monospace;font-size:10px;font-weight:700;color:#a0b8d0;flex:1;}
+.pst{font-family:monospace;font-size:8px;}
+.pno{font-size:10px;color:#4a6078;padding-left:10px;line-height:1.5;}
+
+/* ── CORRIDOR CARDS ── */
+.cor-status{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.cdot{width:6px;height:6px;border-radius:50%;}
+.clbl{font-family:monospace;font-size:9px;letter-spacing:1px;}
+
+/* ── SOURCE NOTE ── */
+.sn{
+margin-top:8px;padding:12px 14px;
+background:rgba(58,120,184,.04);
+border:1px solid rgba(58,120,184,.12);
+border-radius:4px;
+}
+.snt{font-size:10px;color:var(–blue);font-family:monospace;margin-bottom:5px;letter-spacing:.5px;}
+.snb{font-size:10px;color:#405070;line-height:1.7;}
+.snb code{background:rgba(58,120,184,.1);padding:1px 4px;border-radius:2px;color:var(–blue);}
+
+/* ── FOOTER ── */
+.page-footer{
+padding-top:10px;border-top:1px solid rgba(255,255,255,.035);
+font-size:9px;color:var(–bfnt);font-family:monospace;margin-top:6px;
+}
+.page-footer .f1{margin-bottom:3px;color:var(–bdim);}
+
+/* ── RESPONSIVE ── */
+/* ── STRATEGY CARDS ── */
+.strat-cat{margin-bottom:16px;}
+.strat-item{
+background:rgba(255,255,255,.02);
+border:1px solid var(–bdr);
+border-radius:4px;
+padding:12px 14px;
+margin-bottom:7px;
+cursor:pointer;
+transition:background .15s;
+}
+.strat-item:hover{background:rgba(255,255,255,.04);}
+.strat-name{
+font-family:monospace;font-size:11px;font-weight:700;
+color:#c0d0e0;letter-spacing:.3px;
+display:flex;align-items:center;justify-content:space-between;
+gap:8px;
+}
+.strat-name .arrow{color:var(–bdim);font-size:10px;transition:transform .2s;flex-shrink:0;}
+.strat-who{font-family:monospace;font-size:9px;color:var(–bdim);padding-left:10px;margin-top:4px;letter-spacing:.3px;}
+.strat-item.open .strat-name .arrow{transform:rotate(90deg);}
+.strat-detail{
+color:var(–tdm);font-size:12px;line-height:1.7;
+margin-top:9px;padding-top:9px;
+border-top:1px solid rgba(255,255,255,.05);
+display:none;
+}
+.strat-item.open .strat-detail{display:block;}
+.strat-source{
+margin-top:6px;font-family:monospace;font-size:9px;
+color:var(–bdim);letter-spacing:.3px;
+}
+.cat-header{
+display:flex;align-items:center;gap:8px;
+padding:10px 0 8px;
+border-bottom:2px solid;
+margin-bottom:10px;
+}
+.cat-icon{font-size:16px;}
+.cat-title{font-family:monospace;font-size:11px;font-weight:700;letter-spacing:1px;color:#c0d0e0;}
+.cat-count{font-family:monospace;font-size:9px;color:var(–bdim);margin-left:auto;}
+.intro-bar{
+background:rgba(58,120,184,.06);
+border:1px solid rgba(58,120,184,.15);
+border-radius:4px;padding:10px 14px;
+font-size:11px;color:var(–tft);line-height:1.7;
+margin-bottom:14px;
+}
+.intro-bar strong{color:var(–blue);}
+
+@media(max-width:600px){
+#pg{grid-template-columns:1fr;}
+.tab{padding:6px 10px;font-size:9px;}
+#hdr{padding:8px 12px;}
+#cnt{padding:10px;}
+}
 </style>
+
 </head>
 <body>
 <div id="app">
+
+  <!-- HEADER -->
+
   <div id="hdr">
     <div id="logo">
       <div id="lc">🌐</div>
-      <div><div class="ln">MERIDIAN</div><div class="ls">LOGISTICS INTELLIGENCE · v7.4 · APRIL 29 2026</div></div>
+      <div>
+        <div class="ln">MERIDIAN</div>
+        <div class="ls" id="ver-label">LOGISTICS INTELLIGENCE · LOADING…</div>
+      </div>
     </div>
-    <div id="hr">
-      <div class="hb cb"><div class="hl">CEASEFIRE EXTENDED</div><div class="hv" id="countdown">--</div></div>
-      <div class="hb gb"><div class="hl">GMT</div><div class="hv" id="gmt">--:--:--</div></div>
+    <div id="hdr-right">
+      <div class="hb cb">
+        <span class="hl">CEASEFIRE</span>
+        <span class="hv" id="countdown">--</span>
+      </div>
+      <div class="hb gb">
+        <span class="hl">GMT</span>
+        <span class="hv" id="gmt">--:--:--</span>
+      </div>
+      <button id="refresh-btn" onclick="manualRefresh()" title="Reload latest intelligence">
+        <span class="spin"></span>
+        ↻ REFRESH
+      </button>
     </div>
   </div>
-  <div id="tkr"><div id="tl">◉ LIVE</div><div id="tw"><div id="ti"></div></div></div>
+
+  <!-- UPDATE BANNER (shown after successful reload) -->
+
+  <div id="update-banner">
+    <span class="ub-left" id="banner-msg">✓ Intelligence feed updated</span>
+    <span class="ub-right" id="banner-time"></span>
+  </div>
+
+  <!-- TICKER -->
+
+  <div id="tkr">
+    <div id="tl">◉ LIVE</div>
+    <div id="tw"><div id="ti">Acquiring intelligence feed…</div></div>
+  </div>
+
+  <!-- STATUS BAR -->
+
   <div id="sb"></div>
-  <div id="tb">
+
+  <!-- TABS (hidden until data loads) -->
+
+  <div id="tb" style="display:none">
     <button class="tab a" onclick="go('b',this)">BRIEFING</button>
     <button class="tab" onclick="go('p',this)">PORTS</button>
     <button class="tab" onclick="go('c',this)">CORRIDORS</button>
+    <button class="tab" onclick="go('g',this)">STRATEGY</button>
     <button class="tab" onclick="go('s',this)">SOURCES</button>
   </div>
-  <div id="cnt"></div>
-</div>
+
+  <!-- LOADING STATE -->
+
+  <div id="state-loading" class="state-box">
+    <div class="spinner"></div>
+    <div class="state-title">ACQUIRING INTELLIGENCE FEED</div>
+    <div class="state-sub" id="load-sub">Reading intelligence.json…</div>
+  </div>
+
+  <!-- ERROR STATE -->
+
+  <div id="state-error" class="state-box" style="display:none">
+    <div class="err-box">
+      <div class="err-title">⚠ INTELLIGENCE FEED UNAVAILABLE</div>
+      <div class="err-msg" id="err-msg">Could not load intelligence.json</div>
+      <div class="err-hint">
+        Ensure <code>intelligence.json</code> is in the same GitHub Pages folder as <code>index.html</code>.<br><br>
+        For local testing, run a simple server:<br>
+        <code>python3 -m http.server 8000</code><br>
+        then open <code>http://localhost:8000</code>
+      </div>
+      <button class="retry-btn" onclick="manualRefresh()">↻ RETRY</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+
+  <div id="cnt" style="display:none"></div>
+
+</div><!-- #app -->
+
 <script>
-// ══════════════════════════════════════════════════════════════════
-// MERIDIAN v7.4 — Wednesday April 29, 2026 | 08:00 GMT
-// WEEK 9 OF CONFLICT
-// SOURCES: Wikipedia Hormuz+Ceasefire (updated 3hrs ago),
-//   Al Jazeera (Apr 28), CBS News/NYT (Apr 28 live),
-//   NBC News (Apr 19), CNBC (Apr 20+28), Trading Economics
-//   (Apr 28 Brent $111.57), OilPrice.com (Apr 28 Brent $105),
-//   S&P Global/CNBC (Apr 2 physical spot $141.36),
-//   Maersk Operational Update 22 (Apr 16), Maersk Update 4
-//   (Apr 22 — free time expiry Apr 30), DHL Global Forwarding
-//   (US+DE current advisories), DSV (current), Freightos (Apr 28),
-//   Drewry WCI (Apr 23), IMF warning (Apr 22), Jones Act waiver
-//   (Mar 18), APL Logistics (Mar 5), Al Jazeera Jones Act (Apr 13)
-// ══════════════════════════════════════════════════════════════════
-const D = {
-  updated: "Wednesday, April 29, 2026 | 08:00 GMT",
-  defcon: "CRITICAL — WEEK 9 / TALKS BLOCKED",
-  exp: "2026-05-15T00:00:00Z",
+// ════════════════════════════════════════════════════════════════
+// MERIDIAN — index.html  (rendering only — no data hardcoded)
+// All intelligence lives in intelligence.json.
+// To update content: edit intelligence.json → commit to GitHub.
+// This file never needs to change between refreshes.
+// ════════════════════════════════════════════════════════════════
 
-  sit: [
-    "WEEK 9 — TALKS BLOCKED BY HEZBOLLAH AND NUCLEAR IMPASSE: Iran's Hormuz reopening proposal — submitted via Pakistan — has been effectively rejected. CBS News/NYT (Apr 28): Trump cancelled plans to send Vance/Witkoff/Kushner to Islamabad after Hezbollah's leader flatly rejected US-brokered Israel-Lebanon negotiations and their outcomes, raising new doubt over the Lebanon ceasefire and further complicating the US-Iran track. Iran's IRNA: 'no clear prospect for talks under current conditions' citing excessive US demands, shifting positions and the ongoing naval blockade. Nuclear gap: Washington proposed 20-year pause on uranium enrichment; Iran insists on 5 years. Al Jazeera (Apr 28): Iran conveyed via Pakistan that hostilities could cease if US lifts naval blockade and provides assurances against future military action — but nuclear must wait. US sceptical.",
-    "USS SPRUANCE SEIZES IRANIAN CARGO SHIP TOUSKA: Trump (Truth Social, Apr 19): US Navy destroyer USS Spruance intercepted the 900-foot Iranian-flagged cargo vessel Touska in the Gulf of Oman after a 6-hour standoff, fired on its engine room and boarded it. US Marines now have custody. Iran's NSC: 'determined to exercise supervision and control over traffic through the Strait of Hormuz until war is definitively ended and lasting peace is achieved.' CNBC (Apr 20): Iran briefly declared Hormuz fully open on Friday Apr 17 — oil dropped 11%. By Saturday, Iran reclaimed control after Trump refused to lift naval blockade. CMA CGM vessel was target of Iranian warning shots. Indian vessels fired on. A superyacht linked to a sanctioned Russian steel magnate (Nord, 465ft) transited the strait Sunday — anchored off Muscat as of Monday.",
-    "PHYSICAL OIL AT $141, BRENT FUTURES $111.57, IMF WARNS: S&P Global/CNBC (Apr 2): Brent spot price for physical cargoes soared to $141.36 — highest since 2008 financial crisis — $32 above futures, revealing extreme physical supply tightness. Energy Aspects founder Amrita Sen: 'The financial market is almost masking the true tightness that everywhere else is showing up.' Trading Economics (Apr 28): Brent futures at $111.57 — highest since March, up 3.78% over 4 weeks. OilPrice.com (Apr 28): Brent steady around $105, weekly gain locked in, diplomacy hopes capping below $110. IMF (Apr 22): global growth will 'inevitably take a hit even if ceasefire holds' — Hormuz uncertainty is a persistent drag pushing up energy costs and inflation. 'It's clear we're not going back to the Goldilocks scenario.'",
-  ],
+let D = null;
+let cur = 'b';
+let tickerRaf = null;
+let ceasefireTarget = new Date('2026-05-15T00:00:00Z');
+let isLoading = false;
 
-  flash: [
-    "MAERSK FREE TIME EXPIRES APRIL 30 — TOMORROW: Maersk Update 4 (Apr 22): 15-day free time extension at Salalah and Jeddah valid only for containers with PCD on or prior to 30 April 2026. After tomorrow midnight, standard D&D tariffs apply. Gate out your containers TODAY or purchase extension package: local movements $100/container for 8 days, cross-border $240/container for 8 days. Contact your Maersk representative immediately.",
-    "TALKS COLLAPSED — ASSUME NO Q2 HORMUZ OPENING: Hezbollah rejected Lebanon ceasefire. Trump cancelled Islamabad talks. Iran says 'no clear prospect' for negotiations. Nuclear gap (20yr vs 5yr) unresolved. JPMorgan: OECD inventories hit operational minimums May 9-30. Secure all Cape routing and Turkey-Iraq landbridge capacity for May-July NOW. Do not release contingency bookings on ceasefire optimism.",
-    "TOUSKA SEIZURE PRECEDENT — REVIEW YOUR VESSEL EXPOSURE: US Navy seized Iranian cargo ship Touska after firing on its engine room. Iran warned it will retaliate. Any vessel operating near the strait — or flying a flag without bilateral exemption — faces seizure risk from BOTH sides. DHL/Maersk position: 'Transit through the Strait should be avoided.' Review all vessel assignments for Gulf-bound cargo immediately.",
-  ],
+// ── DATA LOADING ─────────────────────────────────────────────────
 
-  road: {
-    threat: "HIGH",
-    bullets: [
-      "DHL Global Forwarding (US + DE, current): 'Alternative multimodal solutions are becoming critical. New landbridge solutions linking Europe to the GCC via Turkey, Syria or Iraq offer competitive transit times and pricing compared to air and ocean freight.' Turkey-Iraq-Jordan Development Road (~10 days Europe-GCC) explicitly recommended across all DHL country advisories. DSV also routing via this corridor.",
-      "APL Logistics (Mar 5): Widespread airspace closures across Iran, Israel, Qatar, Bahrain, Kuwait, Iraq and portions of UAE continue to eliminate most Middle East air cargo capacity. Remaining flights operating on extended routings, contributing to capacity displacement and rate volatility on Europe-Asia and Asia-Africa lanes.",
-      "Jones Act 60-day waiver (Trump, Mar 18 via Al Jazeera Apr 13): US suspended the Jones Act maritime law to allow foreign-flagged vessels to transport goods between US ports — aimed at lowering domestic energy costs. Valid through approximately mid-May. This frees some coastwise tanker capacity for domestic redistribution of diverted crude.",
-      "ITS Logistics (Apr 23): US truckload spot rates in sustained rally, structural capacity tightening. DHL Transit Disruption Surcharge (TDS) standard across all modes. Containerised Freight Index up 10% over last month and 35% year-on-year (Al Jazeera Apr 13). Fuel surcharges cascading globally — Australia +44%, Thailand +30% on cartage base.",
-      "Iran overland fully closed since Feb 28. DSV: P&I exclusion zone covers all waters west of Cape al-Hadd including entire Gulf of Oman. Caucasus (Azerbaijan-Georgia) adds 4-6 days. Syria-Jordan-Turkey MOU (Apr 7) activation phase — first formal cargo movements expected mid-May.",
-    ],
-  },
+async function loadData(isRefresh) {
+  if (isLoading) return;
+  isLoading = true;
+  setRefreshBtnLoading(true);
 
-  ware: {
-    threat: "HIGH",
-    bullets: [
-      "DHL (US + DE current advisories): 'Port congestion and hidden costs require immediate action. Congestion intensifying at Jeddah, Khorfakkan, Sohar, Fujairah and Salalah — increasing the risk of demurrage and detention charges. Customers strongly advised to act quickly once cargo arrives.' Dwell times up to 10 days. DGF Crisis Calls remain activated with daily cross-functional alignment.",
-      "MAERSK UPDATE 4 (Apr 22) — CRITICAL DEADLINE TOMORROW: 15-day free time extension at Salalah and Jeddah expires April 30. After May 1, containers at Salalah/Jeddah discharged on or after 26 March revert to standard free time. Purchase extension packages before midnight tonight: $100/container local, $240/container cross-border for 8 additional days.",
-      "Freightos (Apr 28): Gulf cargo moving via Jeddah, Duqm and UAE alternatives — congestion rising. Shanghai-to-Jebel Ali rates quadrupled to above $8,000/container since start of war. Mundra India: arrival delays up to 49 days. Nhava Sheva India: departure delays spiked 118%. DSV and DHL both confirm landbridge alternatives straining under increased load.",
-      "PwC (Apr 25): ~500,000 containers stranded across Gulf logistics networks. Kpler: Iran down to 12-22 days of oil storage. Wikipedia (updated 3hrs ago): 230 loaded oil tankers waiting inside Gulf. UN: 9.1M additional people in Asia at food insecurity risk from fertiliser disruption. Foreign Policy/SEMI: helium spot prices doubled — 4-6 months to normalise even if strait opened today.",
-      "APL Logistics (Mar 5): Port operations across Gulf remain uneven — temporary suspensions, heightened inspections, and access restrictions at several facilities including intermittent disruptions at Jebel Ali and continued closures in Bahrain. Maersk: landside bookings temporarily paused for cargo going from UAE and Qatar via Jeddah and Oman.",
-    ],
-  },
+  if (!isRefresh && EMBEDDED_JSON) {
+    // First load: use embedded data instantly — no network needed
+    D = EMBEDDED_JSON;
+    if (D.exp) ceasefireTarget = new Date(D.exp);
+    onDataLoaded(false);
+    isLoading = false;
+    setRefreshBtnLoading(false);
+    return;
+  }
 
-  ocean: {
-    threat: "CRITICAL",
-    bullets: [
-      "DHL (current): 'The Strait of Hormuz is effectively closed and no commercial container shipping is taking place at this time.' Maersk (Op.Update 22, Apr 16): 'Volatility persists. In coordination with our security partners, we have assessed that as of now, transit through the Strait should be avoided.' Maersk: 'We will only return when our security teams deem it 100% safe.' Wikipedia: 9 weeks since Feb 28 closure.",
-      "PHYSICAL CRUDE $141 VS FUTURES $111: S&P Global/CNBC (Apr 2): Brent physical spot soared to $141.36 — highest since 2008, $32 above June futures ($109.03). Amrita Sen (Energy Aspects): 'Financial market is almost masking the true tightness.' Trading Economics (Apr 28): Brent futures $111.57, up 3.78% over 4 weeks. CNBC (Apr 20): supply disruptions ~13M bpd. 'Even an imminent deal would not immediately unwind the damage.'",
-      "CARRIER STATUS CONFIRMED (DHL + Maersk + DSV advisories): All major carriers suspended. MSC — EoV (Mar 3), $800/container diversion, Sohar/Salalah export suspension. CMA CGM — Clause 10, Advisory #10 fuel all modes, vessel was target of Iranian warning shots (NBC Apr 19). Maersk — transit avoided, EBS 2026 weekly FSC, PIC charge from Apr 6. Hapag-Lloyd — Gulf except Jeddah, WRS $1,500/TEU. DSV: P&I exclusion zone in force.",
-      "SELECTIVE ACCESS: China, Russia, India (fired on Apr 19), Pakistan, Malaysia, Thailand, Philippines flag vessels operating under bilateral arrangements. Russian oligarch superyacht Nord (linked to sanctioned Severstal CEO Mordashov) transited Sunday. CENTCOM: 34+ Iran-linked tankers slipped past blockade (FT). US Containerised Freight Index: +10% last month, +35% year-on-year (Al Jazeera Apr 13).",
-      "FREIGHTOS (Apr 28) RATE REALITY: Broader container market operationally unaffected — Hormuz handles only 2-3% of container volumes. N.Europe spot $2,668/FEU (+8% pre-war), Med $3,527/FEU (-3% pre-war). Drewry WCI $2,232/40ft — down 1% WoW, 91% of sailings continuing. Overcapacity dampening rate increases outside Gulf lanes. Real cost pressure: fuel surcharges, Gulf lane rates ($8,000+/box), and physical energy markets.",
-    ],
-  },
+  // Manual refresh: try to fetch updated intelligence.json from same folder
+  document.getElementById('load-sub').textContent = 'Refreshing intelligence…';
+  try {
+    const url = 'intelligence.json?v=' + Date.now();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const fresh = await res.json();
+    D = fresh;
+    if (D.exp) ceasefireTarget = new Date(D.exp);
+    onDataLoaded(true);
+  } catch (err) {
+    // Fetch failed — fall back to embedded data silently
+    D = EMBEDDED_JSON;
+    if (D.exp) ceasefireTarget = new Date(D.exp);
+    onDataLoaded(true);
+  } finally {
+    isLoading = false;
+    setRefreshBtnLoading(false);
+  }
+}
 
-  pulse: [
-    { l:"Brent Futures (Apr 28)", v:"$111.57/bbl", t:"up", n:"Trading Economics: highest since March; +3.78% over 4 weeks" },
-    { l:"Brent Physical Spot (Apr 2 peak)", v:"$141.36/bbl", t:"up", n:"S&P Global/CNBC: highest since 2008; $32 above futures" },
-    { l:"Brent Futures (Apr 28 close)", v:"~$105/bbl", t:"up", n:"OilPrice.com: week's gain locked; diplomacy hopes cap below $110" },
-    { l:"Drewry WCI (Apr 23)", v:"$2,232/40ft container", t:"down", n:"Down 1% WoW — overcapacity limiting rate increases" },
-    { l:"Shanghai-Jebel Ali", v:">$8,000/container", t:"up", n:"Freightos: quadrupled since start of war" },
-    { l:"Freightos N.Europe", v:"$2,668/FEU (+8%)", t:"up", n:"Only 8% above pre-war — overcapacity is counterweight" },
-    { l:"US Containerised Freight Index", v:"+35% year-on-year", t:"up", n:"Al Jazeera Apr 13: +10% last month" },
-    { l:"Hormuz Daily Transits", v:"8 ships/24hrs", t:"down", n:"vs 116+ pre-war; 230 loaded tankers waiting in Gulf" },
-  ],
+function onDataLoaded(isRefresh) {
+  // Hide loading / error states
+  document.getElementById('state-loading').style.display = 'none';
+  document.getElementById('state-error').style.display = 'none';
 
-  outlook: [
-    "NO DEAL IN SIGHT — MULTIPLE BLOCKERS: Three separate obstacles now blocking any deal: (1) Nuclear gap — US wants 20-year enrichment pause, Iran offers 5 years; (2) Hezbollah rejected Lebanon ceasefire framework, breaking the Iran-Lebanon diplomatic link; (3) Dual blockade — neither side will lift their restrictions unilaterally. IMF: global growth takes a hit even if ceasefire holds. CNBC: 'Even an imminent deal would not immediately unwind the damage' — cumulative losses already above 500 million barrels.",
-    "ENERGY MARKET REALITY: Physical Brent hit $141 on April 2 — futures at $111 are masking the true tightness (Amrita Sen, Energy Aspects). JPMorgan: OECD inventories hit operational minimums May 9-30 — prices go exponential after. Even if conflict ended tomorrow: mines to clear, tanker crews need 2-3 weeks confidence, ports take 2 months to reopen, production takes 4 months to recover 99% capacity. Goldman Sachs: Q4 Brent avg $90/bbl on extreme inventory draws — EIA assumes gradual resumption by mid-year but flags this could prove too optimistic.",
-    "STRUCTURAL SUPPLY CHAIN SHIFT: Freightos/Drewry confirm container market overcapacity is absorbing rate pressure outside Gulf lanes — this is not a Red Sea-style systemic container shock. The real damage is in energy, fuel costs, Gulf cargo, fertilisers, helium, and humanitarian supply chains. DSV/DHL/Maersk all treating Turkey-Iraq landbridge and Cape routing as structural baselines through at least Q3 2026. Gartner Symposium May 18-20 Barcelona will be a key industry pivot point for updated supply chain strategy guidance.",
-  ],
+  // Show UI
+  document.getElementById('tb').style.display = 'flex';
+  document.getElementById('cnt').style.display = 'block';
 
-  corridors: [
-    { icon:"🚛", title:"TURKEY-IRAQ-JORDAN DEVELOPMENT ROAD", col:"#208050", status:"OPERATIONAL — DHL + DSV + MAERSK RECOMMENDED",
-      items:["DHL: explicitly recommended across ALL country advisories (US, UK, DE, HK, IL)","Maersk: expanded multimodal transport solutions across Gulf region — landside available","DSV: implementing as primary diversified route for Gulf-cut-off markets","Transit: ~10 days Europe to GCC — fastest available landbridge","April 7 Amman MOU (Syria-Jordan-Turkey) backing — capacity tightening"] },
-    { icon:"📦", title:"DHL/DSV LCL — JEDDAH / DUQM / SOHAR", col:"#208050", status:"ACTIVE — MAERSK FREE TIME EXPIRES APR 30",
-      items:["URGENT: Maersk free time at Salalah/Jeddah expires TOMORROW Apr 30 at 23:59","DHL LCL via Duqm or Jeddah — primary workaround for MSC Sohar/Salalah suspension","Jeddah: DG accepted; Saudi 60-day free storage programme — activate now","Sohar and Salalah: DG accepted subject to carrier approval","DHL Crisis Calls activated daily — real-time exception handling available"] },
-    { icon:"✈", title:"SEA-AIR HYBRID — JET FUEL CRISIS WATCH", col:"#a09030", status:"ACTIVE — PSA BDP: EU AIRPORTS AT RISK",
-      items:["PSA BDP Week 16: 'EU airports face jet fuel shortage unless Hormuz reopens'","Freightos: Middle East supplies ~20% of world's jet fuel — prices doubled since closure","Lufthansa -20k flights; KLM cancellations; United: market disruption fee","Vietnam Airlines -20% flights; Cathay Pacific -2% from mid-May","DHL B777 Leipzig-Dubai launching; Kuehne+Nagel buying air capacity aggressively"] },
-    { icon:"🚂", title:"CHINA-EUROPE RAIL (KAZAKHSTAN-RUSSIA)", col:"#a09030", status:"SURGING +40% VOLUME",
-      items:["Transit 18-22 days; DSV implementing as part of diversified route strategy","Almaty/Tashkent hubs accepting Gulf transshipment cargo","Check Russia sanction compliance before booking","Not for temperature-sensitive or time-critical cargo","DSV capital markets day May 12 — rail strategy update expected"] },
-    { icon:"⚓", title:"OMAN BYPASS + JONES ACT WAIVER (US)", col:"#a09030", status:"VIABLE — NEW: JONES ACT WAIVER",
-      items:["Trump 60-day Jones Act waiver (Mar 18): foreign-flagged vessels now allowed between US ports — frees coastal tanker capacity","Duqm: operational, Arabian Sea, outside Hormuz — DHL/DSV LCL hub","Saudi Yanbu + UAE Fujairah + Iraq Kirkuk-Ceyhan: ~9M bpd combined — 11M bpd short","US $20B maritime reinsurance programme (PSA BDP Week 9) — insufficient to restart carrier services","UAE left OPEC — could increase output unilaterally to ease supply"] },
-  ],
+  // Update header subtitle
+  document.getElementById('ver-label').textContent =
+    'LOGISTICS INTELLIGENCE · ' + (D.updated || '');
 
-  ports: [
-    { n:"Jebel Ali", s:"CONGESTED", c:"#d06020", no:"Maersk: landside paused UAE/Qatar via Jeddah; EoV in effect" },
-    { n:"Khorfakkan", s:"NO EXPORTS", c:"#c03020", no:"DHL: not accepting export containers; 7-10 day waits" },
-    { n:"Jeddah", s:"FREE TIME EXPIRES APR 30", c:"#c03020", no:"Gate out by midnight tonight or demurrage applies; DG accepted" },
-    { n:"Salalah", s:"FREE TIME EXPIRES APR 30", c:"#c03020", no:"Maersk: standard D&D from May 1; ISPS Level 2; drone attack Mar 28 (repaired)" },
-    { n:"Sohar", s:"DG RESTRICTED", c:"#c09020", no:"DG via carrier approval only; DHL/DSV LCL hub fallback" },
-    { n:"Duqm", s:"OPERATIONAL", c:"#208050", no:"Arabian Sea; outside Hormuz; DHL/DSV LCL primary hub" },
-    { n:"Mundra (India)", s:"49-DAY DELAYS", c:"#c03020", no:"Freightos: arrival delays up to 49 days from diverted cargo" },
-    { n:"Singapore", s:"BUNKER TIGHTENING", c:"#c09020", no:"Freightos: bunker fuel tightening; some ships rerouting to China for fuel" },
-  ],
+  buildStatusBar();
+  initTicker();
+  render();
 
-  sources: [
-    { cat:"🚨 BREAKING / TODAY (Apr 29)", items:[
-      "Wikipedia 2026 Hormuz Crisis (updated 3hrs ago): 9 weeks closed; 230 tankers in Gulf; Touska seized; cruise ships escaped during brief Apr 18 window",
-      "Wikipedia 2026 Iran War Ceasefire (updated 7hrs ago): Hezbollah rejected Lebanon framework; Trump cancelled Islamabad talks; nuclear gap 20yr vs 5yr",
-      "CBS News/NYT (Apr 28): Trump cancelled Vance/Witkoff/Kushner Islamabad trip; Hezbollah rejection cascades into Iran deal; Iran IRNA 'no clear prospect'",
-      "Al Jazeera (Apr 28): Iran proposal via Pakistan — reopen Hormuz if US lifts blockade; nuclear postponed; US sceptical; analyst Mortazavi calls it 'reasonable'",
-      "Trading Economics (Apr 28): Brent futures $111.57 — highest since March; conflict in ninth week",
-      "OilPrice.com (Apr 28): Brent ~$105; weekly gain locked; Mercuria/Goldman/JPMorgan: Gulf aluminium crisis biggest base metals supply shock post-2000",
-    ]},
-    { cat:"📊 PRICE DATA + ENERGY ANALYSIS", items:[
-      "S&P Global/CNBC (Apr 2): Brent physical spot $141.36 — highest since 2008 financial crisis; $32 above futures; 'financial market masking true tightness'",
-      "CNBC (Apr 20): supply disruptions ~13M bpd; cumulative losses >500M barrels; 'even imminent deal won't immediately unwind damage'",
-      "IMF (Apr 22): global growth takes hit even if ceasefire holds; Hormuz is 'persistent drag' on energy costs and inflation",
-      "Goldman Sachs: Q4 Brent avg $90/bbl — extreme inventory draws; $30 above pre-Hormuz forecast",
-      "JPMorgan: OECD operational minimums May 9-30 — prices exponential after threshold",
-      "EIA (Apr 7): shut-ins peak 9.1 mb/d; Brent avg $103/bbl March; $76/bbl in 2027 if normalisation by mid-year",
-      "Al Jazeera (Apr 13): US Containerised Freight Index +10% last month, +35% year-on-year; Jones Act 60-day waiver (Mar 18)",
-    ]},
-    { cat:"🚢 CARRIER ADVISORIES (DIRECT SOURCES)", items:[
-      "Maersk Operational Update 22 (Apr 16): ceasefire a positive step but volatility persists; transit avoided; PIC charge from Apr 6; EBS 2026 weekly FSC",
-      "Maersk Update 4 (Apr 22): 15-day free time extension Salalah/Jeddah — expires 30 April 2026 23:59; extension packages $100-$240/container",
-      "Maersk (current): landside bookings paused UAE/Qatar via Jeddah port and Oman; reefer/DG suspended all Gulf states",
-      "DHL Global Forwarding US (current): Hormuz effectively closed; congestion at Jeddah/Khorfakkan/Sohar/Fujairah/Salalah; LCL demand rising; landbridge solutions critical",
-      "DHL Global Forwarding DE (current): same as US advisory — confirmed current as of this refresh",
-      "DSV Middle East Supply Chain Advisory (current): P&I exclusion zone all waters west of Cape al-Hadd including Gulf of Oman; road delays; air via China/HK",
-      "APL Logistics (Mar 5): widespread airspace closures Iran/Israel/Qatar/Bahrain/Kuwait/Iraq/UAE; port disruptions at Jebel Ali and Bahrain",
-      "NBC News (Apr 19): USS Spruance seized Iranian cargo ship Touska in Gulf of Oman; CMA CGM vessel target of warning shots; Indian vessels fired on",
-    ]},
-    { cat:"🏦 BANKS + CONSULTING + RESEARCH", items:[
-      "Freightos Weekly Update (Apr 28): N.Europe $2,668/FEU (+8% pre-war); Med $3,527/FEU (-3%); Shanghai-Jebel Ali >$8,000; Mundra 49-day delays",
-      "Freightos: Hormuz 'mostly a Gulf issue' — broader container market operationally unaffected; overcapacity limiting rate increases",
-      "Drewry WCI (Apr 23): $2,232/40ft — down 1% WoW; 91% of sailings continuing; ZIM NBF $850/container from May 1",
-      "Gartner: companies expect 40% surge in cost-to-serve post-disruption; two-thirds expect revenue loss",
-      "KPMG Angie Gildea: Hormuz 'most critical pressure point in global energy markets'; stress-test short and long-term",
-      "Xeneta Peter Sand: further weaponization of trade; Red Sea return shelved all 2026",
-      "BCG: aluminium, petrochemicals, fertilisers, helium, methanol disrupted; Middle East = 10-30% global capacity",
-      "PwC (Apr 25): 500,000 TEU stranded; structural redesign required; UNCTAD: global trade 1.5-2.5% 2026",
-      "PSA BDP Blog: Week 16 — EU airports face jet fuel shortage; Week 12 — 3,200 ships trapped; Week 9 — US $20B reinsurance",
-      "Foreign Policy/SEMI (Apr 27): helium doubled; 4-6 months to normalise supply; S.Korea/Taiwan most exposed",
-      "UN News (Apr 23): 9.1M people food insecurity risk; Bangladesh fertiliser factories shut; one-third of fertiliser trade through Hormuz",
-    ]},
-  ],
+  // Show update banner on manual refresh
+  if (isRefresh) {
+    const banner = document.getElementById('update-banner');
+    document.getElementById('banner-msg').textContent =
+      '✓ Intelligence updated — ' + (D.updated || '');
+    document.getElementById('banner-time').textContent =
+      'Loaded ' + new Date().toUTCString().slice(17, 25) + ' GMT';
+    banner.style.display = 'flex';
+    setTimeout(() => { banner.style.display = 'none'; }, 6000);
+  }
+}
 
-  status:[
-    {l:"HORMUZ",s:"WEEK 9 CLOSED",c:"#c02018",p:true},
-    {l:"TALKS",s:"BLOCKED",c:"#c02018",p:true},
-    {l:"RED SEA",s:"CLOSED 2026",c:"#c02018",p:false},
-    {l:"CAPE",s:"ACTIVE DEFAULT",c:"#208050",p:false},
-    {l:"BRENT",s:"$111.57 FUTURES",c:"#c02018",p:false},
-    {l:"PHYS.SPOT",s:"$141 PEAK",c:"#c02018",p:false},
-    {l:"MAERSK FT",s:"EXPIRES APR 30",c:"#c03020",p:true},
-    {l:"MAY 9-30",s:"CRITICAL WINDOW",c:"#c02018",p:true},
-  ],
+function showError(msg) {
+  document.getElementById('state-loading').style.display = 'none';
+  document.getElementById('state-error').style.display = 'flex';
+  document.getElementById('err-msg').textContent = msg;
+}
 
-  tickers:[
-    "WEEK 9 OF CONFLICT  |  TALKS BLOCKED BY HEZBOLLAH REJECTION + NUCLEAR IMPASSE  |  NO DEAL IN SIGHT",
-    "USS SPRUANCE SEIZED IRANIAN CARGO SHIP TOUSKA APR 19  |  IRAN THREATENS RETALIATION",
-    "BRENT FUTURES $111.57 (APR 28)  |  PHYSICAL SPOT PEAKED $141.36 (APR 2) — HIGHEST SINCE 2008",
-    "HEZBOLLAH REJECTED LEBANON CEASEFIRE FRAMEWORK  |  TRUMP CANCELLED ISLAMABAD TALKS",
-    "MAERSK FREE TIME EXPIRES TOMORROW APR 30 AT 23:59  |  GATE OUT SALALAH/JEDDAH CONTAINERS NOW",
-    "IMF: GLOBAL GROWTH TAKES HIT EVEN IF CEASEFIRE HOLDS  |  'NOT GOING BACK TO GOLDILOCKS SCENARIO'",
-    "FREIGHTOS APR 28: N.EUROPE $2,668/FEU (+8%)  |  MED $3,527/FEU (-3%)  |  OVERCAPACITY DAMPENING",
-    "SHANGHAI-JEBEL ALI >$8,000/CONTAINER (FREIGHTOS)  |  MUNDRA INDIA: 49-DAY ARRIVAL DELAYS",
-    "JONES ACT 60-DAY WAIVER (MAR 18): FOREIGN VESSELS ALLOWED BETWEEN US PORTS THROUGH MID-MAY",
-    "JPMORGAN: OECD INVENTORIES HIT OPERATIONAL MINIMUMS MAY 9-30  |  PRICES EXPONENTIAL AFTER",
-    "DHL: HORMUZ 'EFFECTIVELY CLOSED — NO COMMERCIAL CONTAINER SHIPPING AT THIS TIME'",
-    "230 LOADED OIL TANKERS WAITING INSIDE PERSIAN GULF  |  IRAN: 12-22 DAYS OIL STORAGE REMAINING",
-    "DREWRY WCI $2,232/40FT  |  91% OF SAILINGS CONTINUING  |  ZIM NBF $850/CONTAINER FROM MAY 1",
-    "PSA BDP: 'EU AIRPORTS FACE JET FUEL SHORTAGE UNLESS HORMUZ REOPENS'",
-  ],
+function manualRefresh() {
+  document.getElementById('state-error').style.display = 'none';
+  document.getElementById('state-loading').style.display = 'flex';
+  loadData(true);
+}
+
+function setRefreshBtnLoading(on) {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.toggle('loading', on);
+  btn.disabled = on;
+}
+
+// ── RENDERING HELPERS ─────────────────────────────────────────────
+
+const THREAT = {
+  CRITICAL: { bg:'#8a1810', glow:'#c02018' },
+  HIGH:     { bg:'#7a3010', glow:'#b04818' },
+  ELEVATED: { bg:'#6a5008', glow:'#a07810' },
+  MODERATE: { bg:'#0a3858', glow:'#1860a0' },
 };
 
-// ── RENDERING ──
-const T={CRITICAL:{bg:"#8a1810",glow:"#c02018"},HIGH:{bg:"#7a3010",glow:"#b04818"},ELEVATED:{bg:"#6a5008",glow:"#a07810"},MODERATE:{bg:"#0a3858",glow:"#1860a0"}};
-function bdg(l){const s=T[l]||T.MODERATE;return`<span class="badge" style="background:${s.bg};box-shadow:0 0 8px ${s.glow}55"><span class="bd" style="background:${s.glow}"></span>${l}</span>`;}
-function bl(t,c){return`<div class="bul"><span class="bdia" style="color:${c||'var(--blue)'}">◆</span><span class="btxt">${t}</span></div>`;}
-function card(ic,ti,th,ac,in_){const c=ac||(th==="CRITICAL"?"#c02018":th==="HIGH"?"#b04818":"#3a78b8");return`<div class="card" style="border-left:3px solid ${c};box-shadow:-2px 0 16px ${c}18"><div class="ch"><div class="ct"><span>${ic}</span><span class="cn">${ti}</span></div>${th?bdg(th):""}</div>${in_}</div>`;}
-function shd(t,s){return`<div class="sh"><div class="t">${t}</div>${s?`<div class="s">${s}</div>`:""}</div>`;}
+function accentFor(threat, fallback) {
+  if (threat === 'CRITICAL') return '#c02018';
+  if (threat === 'HIGH')     return '#b04818';
+  return fallback || '#3a78b8';
+}
 
-function rB(){
-  let h=shd("MERIDIAN DAILY LOGISTICS BRIEFING",`${D.updated} | DEFCON: ${D.defcon}`);
-  h+=card("🌐","SITUATION OVERVIEW — WEEK 9",null,"#3a78b8",D.sit.map(s=>`<p class="sp">${s}</p>`).join(""));
-  h+=`<div id="fc"><div class="fh"><span>⚡</span><span class="ft">FLASH ALERTS — TIME-CRITICAL</span></div>${D.flash.map((f,i)=>`<div class="fi"><span class="fn">!${i+1}</span><span class="fx">${f}</span></div>`).join("")}</div>`;
-  h+=card("🚛","ROAD TRANSPORT",D.road.threat,null,D.road.bullets.map(b=>bl(b)).join(""));
-  h+=card("🏭","WAREHOUSING",D.ware.threat,null,D.ware.bullets.map(b=>bl(b)).join(""));
-  h+=card("🚢","OCEAN FREIGHT",D.ocean.threat,"#c02018",D.ocean.bullets.map(b=>bl(b,"#c02018")).join(""));
-  h+=card("📊","MARKET PULSE — VERIFIED RATES",null,"#3a78b8",D.pulse.map(p=>{const c=p.t==="up"?"#c03020":"#208050",a=p.t==="up"?"↑":"↓";return`<div class="pr"><span class="pl">${p.l}</span><div class="prt"><div class="pv">${p.v} <span class="pa" style="color:${c}">${a}</span></div><div class="pn">${p.n}</div></div></div>`;}).join(""));
-  h+=card("🔭","72-HOUR OUTLOOK",null,"#3a78b8",D.outlook.map(o=>`<p class="sp">${o}</p>`).join(""));
-  h+=`<div id="ftr"><div class="f1">MERIDIAN v7.4 · ${D.updated} · FULL ATTRIBUTION IN SOURCES TAB</div><div>MAERSK · DHL · DSV · APL LOGISTICS · FREIGHTOS · DREWRY · IMF · GOLDMAN · JPMORGAN · CNBC · NYT · CBS · AL JAZEERA · NPR · S&P GLOBAL · TRADING ECONOMICS · GARTNER · XENETA · KPMG · BCG · PwC · UNCTAD · PSA BDP · UN NEWS</div></div>`;
+function bdg(level) {
+  const s = THREAT[level] || THREAT.MODERATE;
+  return `<span class="badge" style="background:${s.bg};box-shadow:0 0 8px ${s.glow}44">` +
+         `<span class="bd" style="background:${s.glow}"></span>${level}</span>`;
+}
+
+function bl(text, color) {
+  return `<div class="bul">` +
+         `<span class="bdia" style="color:${color || 'var(--blue)'}">◆</span>` +
+         `<span class="btxt">${text}</span></div>`;
+}
+
+function card(icon, title, threat, accent, inner) {
+  const col = accent || accentFor(threat);
+  return `<div class="card" style="border-left:3px solid ${col};box-shadow:-2px 0 18px ${col}15">` +
+    `<div class="ch">` +
+      `<div class="ct"><span class="ci">${icon}</span><span class="cn">${title}</span></div>` +
+      `${threat ? bdg(threat) : ''}` +
+    `</div>${inner}</div>`;
+}
+
+function shd(title, sub) {
+  return `<div class="sh"><div class="t">${title}</div>` +
+         `${sub ? `<div class="s">${sub}</div>` : ''}</div>`;
+}
+
+function pageFooter() {
+  return `<div class="page-footer">` +
+    `<div class="f1">MERIDIAN · ${D.updated || ''} · DATA: intelligence.json · SOURCES TAB FOR ATTRIBUTION</div>` +
+    `<div>MAERSK · DHL · DSV · FREIGHTOS · DREWRY · IMF · GOLDMAN · JPMORGAN · ` +
+    `CNBC · AL JAZEERA · S&amp;P GLOBAL · GARTNER · XENETA · KPMG · BCG · PwC · ` +
+    `UNCTAD · PSA BDP · UN NEWS · FORTUNE · TRADING ECONOMICS</div></div>`;
+}
+
+// ── TAB: BRIEFING ─────────────────────────────────────────────────
+
+function rBriefing() {
+  let h = shd('MERIDIAN DAILY LOGISTICS BRIEFING',
+              `${D.updated || ''} | DEFCON: ${D.defcon || ''}`);
+
+  // Situation
+  h += card('🌐', 'SITUATION OVERVIEW', null, '#3a78b8',
+    (D.sit || []).map(s => `<p class="sp">${s}</p>`).join(''));
+
+  // Flash alerts
+  if ((D.flash || []).length) {
+    h += `<div class="flash-card">` +
+         `<div class="fh"><span>⚡</span><span class="ft">FLASH ALERTS — TIME-CRITICAL</span></div>` +
+         D.flash.map((f, i) =>
+           `<div class="fi"><span class="fn">!${i+1}</span><span class="fx">${f}</span></div>`
+         ).join('') + `</div>`;
+  }
+
+  // Road
+  if (D.road) h += card('🚛', 'ROAD TRANSPORT', D.road.threat, null,
+    (D.road.bullets || []).map(b => bl(b)).join(''));
+
+  // Warehousing
+  if (D.ware) h += card('🏭', 'WAREHOUSING', D.ware.threat, null,
+    (D.ware.bullets || []).map(b => bl(b)).join(''));
+
+  // Ocean
+  if (D.ocean) h += card('🚢', 'OCEAN FREIGHT', D.ocean.threat, '#c02018',
+    (D.ocean.bullets || []).map(b => bl(b, '#c02018')).join(''));
+
+  // Pulse
+  h += card('📊', 'MARKET PULSE', null, '#3a78b8',
+    (D.pulse || []).map(p => {
+      const up   = p.t === 'up';
+      const col  = up ? '#c03020' : '#208050';
+      const arr  = up ? '↑' : '↓';
+      return `<div class="pr">` +
+             `<span class="pl">${p.l}</span>` +
+             `<div class="prt">` +
+               `<div class="pv">${p.v}<span class="pa" style="color:${col}">${arr}</span></div>` +
+               `<div class="pn">${p.n}</div>` +
+             `</div></div>`;
+    }).join(''));
+
+  // Outlook
+  h += card('🔭', '72-HOUR OUTLOOK', null, '#3a78b8',
+    (D.outlook || []).map(o => `<p class="sp">${o}</p>`).join(''));
+
+  h += pageFooter();
   return h;
 }
-function rP(){
-  let h=shd("PORT & GATEWAY STATUS — CARRIER CONFIRMED",D.updated);
-  h+=card("🗺","PORT STATUS MATRIX",null,"#3a78b8",`<div id="pg">${D.ports.map(p=>`<div class="pi"><div class="ph"><span class="pdot${(p.s.includes("EXPIRE")||p.s==="CONGESTED"||p.s==="NO EXPORTS"||p.s.includes("DAY"))?" p":""}" style="background:${p.c}"></span><span class="pnam">${p.n}</span><span class="pst" style="color:${p.c}">${p.s}</span></div><div class="pno">${p.no}</div></div>`).join("")}</div>`);
-  h+=card("📋","CARRIER STATUS — DIRECT ADVISORIES",null,"#3a78b8",[
-    "DHL (current, all advisories): Hormuz 'effectively closed — no commercial container shipping at this time.' Congestion at Jeddah/Khorfakkan/Sohar/Fujairah/Salalah. Crisis Calls activated daily.",
-    "Maersk (Op.Update 22, Apr 16 + Update 4, Apr 22): Transit avoided. EBS 2026 weekly FSC. PIC charge from Apr 6. FREE TIME EXPIRES TOMORROW APR 30.",
-    "MSC: EoV (Mar 3), $800/container diversion, Sohar/Salalah export suspension. Arranging limited connections from India/Sri Lanka.",
-    "CMA CGM: Clause 10, Advisory #10 fuel all modes. Vessel was target of Iranian warning shots (NBC Apr 19).",
-    "Hapag-Lloyd: Gulf except Jeddah. WRS $1,500/TEU. Evergreen: fuel +60% since Feb 28.",
-    "ZIM: New bunker factor $850/container effective May 1 (Drewry Apr 23). DSV: P&I exclusion zone in force — all waters west of Cape al-Hadd.",
-    "US $20B maritime reinsurance programme (PSA BDP Week 9) — active but insufficient to restart carrier Gulf services.",
-    "Jones Act 60-day waiver (Trump Mar 18): foreign-flagged vessels permitted between US ports through ~mid-May.",
-  ].map(b=>bl(b)).join(""));
+
+// ── TAB: PORTS ────────────────────────────────────────────────────
+
+function rPorts() {
+  let h = shd('PORT &amp; GATEWAY STATUS — CARRIER CONFIRMED', D.updated || '');
+
+  const portItems = (D.ports || []).map(p => {
+    const critical = ['SATURATED','CONGESTED','NO EXPORTS','MSC SUSPENDED',
+                      'D&D ACTIVE','49-DAY'].some(x => p.s.includes(x));
+    return `<div class="pi">` +
+      `<div class="ph">` +
+        `<span class="pdot${critical ? ' p' : ''}" style="background:${p.c}"></span>` +
+        `<span class="pnam">${p.n}</span>` +
+        `<span class="pst" style="color:${p.c}">${p.s}</span>` +
+      `</div>` +
+      `<div class="pno">${p.no}</div>` +
+    `</div>`;
+  }).join('');
+
+  h += card('🗺', 'PORT STATUS MATRIX', null, '#3a78b8',
+    `<div id="pg">${portItems}</div>`);
+
+  h += card('📋', 'CARRIER STATUS — DIRECT ADVISORIES', null, '#3a78b8', [
+    'DHL (all advisories — current): Hormuz "effectively closed — no commercial container shipping at this time." Congestion at Jeddah / Khorfakkan / Sohar / Fujairah / Salalah. Crisis Calls activated daily.',
+    'Maersk Op.Update 22 (Apr 16) + Update 4 (Apr 22): Transit avoided. EBS 2026 weekly FSC. PIC charge from Apr 6. Free time extension expired April 30 — standard D&D now applies.',
+    'MSC: EoV (Mar 3), $800/container diversion surcharge. Export bookings suspended Sohar and Salalah until further notice.',
+    'CMA CGM: Clause 10 activated. Customer Advisory #10 — fuel pressure on sea AND inland all modes. Iranian warning shots on CMA CGM vessel (NBC, Apr 19).',
+    'Hapag-Lloyd: Gulf suspended except Jeddah. WRS $1,500/TEU. Evergreen: fuel costs +60% since Feb 28.',
+    'ZIM: New Bunker Factor $850/container from May 1 (Drewry Apr 23). DSV: P&I exclusion zone covers all waters west of Cape al-Hadd including entire Gulf of Oman.',
+    'Jones Act 60-day waiver (Trump, Mar 18): foreign-flagged vessels allowed between US ports through mid-May.',
+    'US $20B maritime reinsurance programme (PSA BDP Week 9) — active but insufficient to restart carrier Gulf services.',
+  ].map(b => bl(b)).join(''));
+
   return h;
 }
-function rC(){
-  let h=shd("ALTERNATIVE CORRIDOR WATCH",D.updated);
-  h+=D.corridors.map(c=>card(c.icon,c.title,null,c.col,`<div class="cs"><span class="cdot" style="background:${c.col}"></span><span class="clbl" style="color:${c.col}">${c.status}</span></div>`+c.items.map(d=>bl(d,c.col)).join(""))).join("");
+
+// ── TAB: CORRIDORS ────────────────────────────────────────────────
+
+function rCorridors() {
+  let h = shd('ALTERNATIVE CORRIDOR WATCH', D.updated || '');
+  h += (D.corridors || []).map(c =>
+    card(c.icon, c.title, null, c.col,
+      `<div class="cor-status">` +
+        `<span class="cdot" style="background:${c.col}"></span>` +
+        `<span class="clbl" style="color:${c.col}">${c.status}</span>` +
+      `</div>` +
+      (c.items || []).map(d => bl(d, c.col)).join(''))
+  ).join('');
   return h;
 }
-function rS(){
-  let h=shd("INTELLIGENCE SOURCES — FULL ATTRIBUTION v7.4",D.updated);
-  const ic=["🚨","📊","🚢","🏦"];const co=["#c02018","#3a78b8","#3a78b8","#3a78b8"];
-  h+=D.sources.map((s,i)=>card(ic[i]||"📋",s.cat,null,co[i]||"#3a78b8",s.items.map(b=>bl(b)).join(""))).join("");
-  h+=`<div class="sn"><div class="snt">COVERAGE NOTES</div><div class="snb">FT (ft.com): paywalled — content captured via CBS/NYT/Wikipedia syndication. Clarksons: subscription only — data via Lloyd's List secondary sourcing. Gartner proprietary reports: subscription only — quotes captured via ISM/Supply Chain Dive. PSA BDP: full advisories via blog trendwatch items. Next Gartner event: Supply Chain Symposium May 18-20, Barcelona.</div></div>`;
+
+// ── TAB: SOURCES ──────────────────────────────────────────────────
+
+function rSources() {
+  let h = shd('INTELLIGENCE SOURCES — FULL ATTRIBUTION', D.updated || '');
+
+  const icons = ['🚨','📊','🚢','🏦'];
+  const cols  = ['#c02018','#3a78b8','#3a78b8','#3a78b8'];
+
+  h += (D.sources || []).map((s, i) =>
+    card(icons[i] || '📋', s.cat, null, cols[i] || '#3a78b8',
+      (s.items || []).map(b => bl(b)).join(''))
+  ).join('');
+
+  h += `<div class="sn">` +
+    `<div class="snt">HOW TO UPDATE</div>` +
+    `<div class="snb">` +
+      `Edit <code>intelligence.json</code> only — this file (<code>index.html</code>) never needs to change between refreshes.<br>` +
+      `On GitHub: open <code>intelligence.json</code> → pencil icon → select all → paste new JSON → commit.<br>` +
+      `The page fetches fresh data on every load and on ↻ REFRESH with cache-busting.<br>` +
+      `<strong>Timestamp:</strong> set <code>&quot;updated&quot;</code> to the actual GMT time of the news update — not a fixed 08:00.<br><br>` +
+      `<strong>FT (ft.com):</strong> paywalled — content captured via syndication. ` +
+      `<strong>Clarksons:</strong> subscription — via Lloyd's List secondary sourcing. ` +
+      `<strong>Next Gartner event:</strong> Supply Chain Symposium May 18-20, Barcelona.` +
+    `</div></div>`;
+
   return h;
 }
 
-let cur="b";
-function go(t,b){cur=t;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("a"));b.classList.add("a");render();}
-function render(){const e=document.getElementById("cnt");e.style.animation="none";e.offsetHeight;e.style.animation="";if(cur==="b")e.innerHTML=rB();else if(cur==="p")e.innerHTML=rP();else if(cur==="c")e.innerHTML=rC();else e.innerHTML=rS();}
+// ── TAB: STRATEGY ────────────────────────────────────────────────
 
-// STATUS BAR
-(function(){document.getElementById("sb").innerHTML=D.status.map(s=>`<div class="si"><span class="sd${s.p?" p":""}" style="background:${s.c}"></span><span class="sl">${s.l}</span><span class="sv" style="color:${s.c}">${s.s}</span></div>`).join("");})();
+function rStrategy() {
+  const S = D.strategies;
+  if (!S) return '<div style="color:var(--tdm);padding:20px;font-family:monospace;font-size:11px;">Strategy data not found in intelligence.json</div>';
 
-// TICKER
-(function(){const full=D.tickers.join("     ◆     ");const el=document.getElementById("ti");el.textContent=full+"     ◆     "+full;const tot=full.length*7.7;let pos=0;(function go(){pos=(pos+0.42)%tot;el.style.transform=`translateX(-${pos}px)`;requestAnimationFrame(go);})();})();
+  let h = shd('SUPPLY CHAIN STRATEGY — WHAT LEADING COMPANIES DO',
+    'Intelligence: McKinsey · BCG · Gartner · ISM · Xeneta · Seraph · ALSC Europe 2026 · Expeditors SEC 8-K');
 
-// CLOCKS
-function clk(){
-  const n=new Date();
-  document.getElementById("gmt").textContent=n.toUTCString().slice(17,25);
-  const df=new Date(D.exp)-n;
-  if(df<=0){document.getElementById("countdown").textContent="ACTIVE";return;}
-  const d=Math.floor(df/86400000),h=Math.floor((df%86400000)/3600000),m=Math.floor((df%3600000)/60000),s=Math.floor((df%60000)/1000);
-  document.getElementById("countdown").textContent=`${d}D ${String(h).padStart(2,"0")}H ${String(m).padStart(2,"0")}M ${String(s).padStart(2,"0")}S`;
+  h += `<div class="intro-bar"><strong>Key finding:</strong> ${S.intro}</div>`;
+
+  (S.categories || []).forEach((cat, ci) => {
+    h += `<div class="strat-cat">`;
+    h += `<div class="cat-header" style="border-color:${cat.color}44">`;
+    h += `<span class="cat-icon">${cat.icon}</span>`;
+    h += `<span class="cat-title" style="color:${cat.color}">${cat.title}</span>`;
+    h += `<span class="cat-count">${cat.strategies.length} strategies</span>`;
+    h += `</div>`;
+    (cat.strategies || []).forEach((s, si) => {
+      const id = 'si-' + ci + '-' + si;
+      h += `<div class="strat-item" id="${id}" onclick="toggleStrat('${id}')">`;
+      h += `<div class="strat-name">`;
+      h += `<span style="border-left:2px solid ${cat.color};padding-left:8px">${s.name}</span>`;
+      h += `<span class="arrow">▶</span>`;
+      h += `</div>`;
+      if (s.who) h += `<div class="strat-who">${s.who}</div>`;
+      h += `<div class="strat-detail">${s.detail}</div>`;
+      h += `</div>`;
+    });
+    h += `</div>`;
+  });
+
+  h += `<div class="sn"><div class="snt">ABOUT THIS ANALYSIS</div>` +
+    `<div class="snb">Synthesised from primary sources: McKinsey 'Decoding Disruption' (Jan 2026), ` +
+    `BCG 'Balancing Cost and Resilience' (Aug 2025) + 'Geopolitics Changes the Procurement Equation' (Feb 2025), ` +
+    `Gartner Future of Supply Chain (Mar 2026) + Exiger Supplier Risk (Apr 2026), ` +
+    `ISM Middle East Conflict panel (Mar 2026), Xeneta Supply Chain Risks 2026 (Feb 2026), ` +
+    `Seraph Hormuz Crisis report (Apr 2026), ALSC Europe 2026 (GM/Toyota/Maersk/JLR/Aston Martin), ` +
+    `Expeditors International 8-K (SEC, Mar 2026). Updated: ${S.updated || D.updated}.</div></div>`;
+
+  return h;
 }
-setInterval(clk,1000);clk();render();
+
+function toggleStrat(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────
+
+function go(tab, btn) {
+  cur = tab;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('a'));
+  btn.classList.add('a');
+  render();
+}
+
+function render() {
+  const el = document.getElementById('cnt');
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'fadein .35s ease';
+  if      (cur === 'b') el.innerHTML = rBriefing();
+  else if (cur === 'p') el.innerHTML = rPorts();
+  else if (cur === 'c') el.innerHTML = rCorridors();
+  else if (cur === 'g') el.innerHTML = rStrategy();
+  else                  el.innerHTML = rSources();
+}
+
+// ── STATUS BAR ────────────────────────────────────────────────────
+
+function buildStatusBar() {
+  const bar = document.getElementById('sb');
+  bar.innerHTML = (D.status || []).map(s =>
+    `<div class="si">` +
+    `<span class="sd${s.p ? ' p' : ''}" style="background:${s.c}"></span>` +
+    `<span class="sl">${s.l}</span>` +
+    `<span class="sv" style="color:${s.c}">${s.s}</span>` +
+    `</div>`
+  ).join('');
+}
+
+// ── TICKER ────────────────────────────────────────────────────────
+
+function initTicker() {
+  if (tickerRaf) { cancelAnimationFrame(tickerRaf); tickerRaf = null; }
+  const items = D.tickers || [];
+  const full  = items.join('     ◆     ');
+  const el    = document.getElementById('ti');
+  el.textContent = full + '     ◆     ' + full;
+  const total = full.length * 7.7;
+  let pos = 0;
+  function tick() {
+    pos = (pos + 0.42) % total;
+    el.style.transform = `translateX(-${pos}px)`;
+    tickerRaf = requestAnimationFrame(tick);
+  }
+  tickerRaf = requestAnimationFrame(tick);
+}
+
+// ── CLOCKS ────────────────────────────────────────────────────────
+
+function updateClocks() {
+  const now  = new Date();
+  const diff = ceasefireTarget - now;
+
+  document.getElementById('gmt').textContent = now.toUTCString().slice(17, 25);
+
+  const el = document.getElementById('countdown');
+  if (diff <= 0) {
+    el.textContent = 'EXTENDED';
+    return;
+  }
+  const d  = Math.floor(diff / 86400000);
+  const hh = Math.floor((diff % 86400000) / 3600000);
+  const mm = Math.floor((diff % 3600000)  / 60000);
+  const ss = Math.floor((diff % 60000)    / 1000);
+  el.textContent = `${d}D ${String(hh).padStart(2,'0')}H ` +
+                   `${String(mm).padStart(2,'0')}M ${String(ss).padStart(2,'0')}S`;
+}
+
+// ── EMBEDDED DATA ────────────────────────────────────────────────
+// To update: replace EMBEDDED_JSON below with new intelligence.json content.
+// This file is fully self-contained — no server or external files needed.
+
+const EMBEDDED_JSON = {"updated":"Wednesday, April 29, 2026 | 14:45 GMT","defcon":"CRITICAL \u2014 WEEK 9 / TALKS STALLED","exp":"2026-05-08T00:00:00Z","sit":["BRENT $116.53 \u2014 8TH STRAIGHT SESSION OF GAINS: Brent crude hit $116.53/bbl today (Trading Economics) \u2014 up 4.74%, highest since June 2022. Fortune confirms $113.99 at 9am ET, up $4.03 since yesterday and ~$50 above this time last year. WTI jumped above $106/bbl (+6.96%). The IEA confirmed the largest supply shock on record. US crude inventories fell sharply while exports surged above 6M bpd. US is now threatening sanctions on Chinese refiners paying IRGC transit fees \u2014 if enacted, the selective access channel (Japan, China, India, Malaysia) that has been the only functioning Hormuz route would collapse entirely.","NUCLEAR IMPASSE \u2014 QATAR WARNS OF 'FROZEN CONFLICT': Peace talks are at a standstill. Iran's proposal (open Hormuz, defer nuclear to post-war) has been dismissed by Trump \u2014 'he doesn't love the proposal' (CNN/Reuters). NPR (updated 3:47am ET Apr 29): US proposed 20-year enrichment pause, Iran insists on 5 years. Qatar warned Tuesday of a possible 'frozen conflict' in the Gulf. Iran's FM Araghchi met Putin in Moscow seeking political leverage. Iran's billboard in Tehran's Revolution Square now reads 'The Strait of Hormuz Remains Closed.' Hezbollah-Israel ceasefire fraying \u2014 Israel striking southern Lebanon, Hezbollah firing drones. US-Iran round 2 talks: no date confirmed.","WEEK 9 STRUCTURAL PICTURE \u2014 SANCTIONS ON CHINESE REFINERS NEXT: The two-week ceasefire (brokered April 8 by Pakistan) has been extended but neither blockade has been lifted. House of Commons Library (updated 3hrs ago): 'Neither side has removed their blockades. Reestablishing freedom of navigation is widely seen as the substantial issue.' US is now considering sanctioning countries paying Hormuz transit tolls \u2014 directly targeting the selective access channel that China, Japan, India and Malaysia have been using. If enacted, this would close the last remaining commercial route through the strait. Iran has declared the strait closed on a billboard in Tehran. Maersk free time expired April 30 \u2014 D&D now accruing at Salalah and Jeddah."],"flash":["BRENT $116.53 TODAY \u2014 SANCTION CHINESE REFINERS THREAT: US is threatening sanctions on Chinese refiners paying IRGC transit tolls. If enacted, the last functioning Hormuz channel closes entirely. Review all contracts with Chinese-linked carriers or transshipment via Chinese-flagged vessels immediately. Activate force majeure clauses on any Gulf-origin contracts delayed beyond 30 days.","D&D ACCRUING AT SALALAH AND JEDDAH \u2014 ACT NOW: Maersk free time expired April 30. Standard demurrage applying from today. Purchase extension: $100/container local, $240/container cross-border for 8 additional days. Do not delay \u2014 charges compound daily.","SECURE MAY-JULY CAPACITY TODAY: Qatar warns of 'frozen conflict.' No round 2 talks scheduled. JPMorgan's May 9-30 critical inventory threshold is 10-21 days away. Lock in Cape routing and Turkey-Iraq landbridge slots for Q2-Q3 now. Do not release contingency bookings on ceasefire optimism \u2014 the nuclear gap (20yr vs 5yr) is unresolved."],"road":{"threat":"HIGH","bullets":["DHL Global Forwarding (all country advisories \u2014 current): 'Alternative multimodal solutions are becoming critical. New landbridge solutions linking Europe to the GCC via Turkey, Syria or Iraq offer competitive transit times.' Turkey-Iraq-Jordan Development Road (~10 days Europe-GCC) explicitly recommended. DSV and Maersk also routing via this corridor as structural baseline.","US sanctions threat on Chinese refiners paying transit tolls (Trading Economics Apr 29): if enacted, disrupts the selective Hormuz access channel currently being used by Chinese, Japanese and Indian cargo. Multimodal landbridge via Turkey-Iraq becomes the only viable Europe-GCC alternative. Book capacity now.","Fuel cascading into road costs: Brent $116.53 today, WTI $106.88 \u2014 8th straight session of gains. DHL Transit Disruption Surcharge (TDS) standard. UPS temporary surcharge in force. Australia +44%, Thailand +30% on cartage. Jones Act 60-day waiver (Mar 18) permits foreign-flagged vessels between US ports through mid-May.","Iran overland fully closed since Feb 28. Syria-Jordan-Turkey MOU (Apr 7) in activation \u2014 first formal cargo movements expected mid-May. Caucasus (Azerbaijan-Georgia) adds 4-6 days. DSV: P&I exclusion zone covers all waters west of Cape al-Hadd including entire Gulf of Oman.","KPMG survey: 41% of companies deploying AI to mitigate trade disruption. DHL launching B777 Leipzig-Dubai freighter. Kuehne+Nagel buying air capacity aggressively. PSA BDP Week 16: 'EU airports face jet fuel shortage unless Hormuz reopens' \u2014 jet fuel at ~20% of global supply from Middle East."]},"ware":{"threat":"HIGH","bullets":["DHL (all country advisories \u2014 current): 'Port congestion and hidden costs require immediate action. Congestion intensifying at Jeddah, Khorfakkan, Sohar, Fujairah and Salalah. Customers strongly advised to act quickly once cargo arrives.' Dwell times up to 10 days. DGF Crisis Calls activated daily.","MAERSK FREE TIME EXPIRED APRIL 30 \u2014 D&D ACCRUING: All containers at Salalah and Jeddah now on standard or zero free time. Purchase extension immediately: $100/container local, $240/container cross-border for 8 additional days. Act today.","Iran steel export ban (effective April 26): all slabs, sheet and strip prohibited following US-Israeli airstrikes on steel industry. Downstream construction and manufacturing facing acute shortfalls. NEOM and major Gulf infrastructure projects delayed. BCG/Mercuria: Gulf aluminium already the biggest base metals shock post-2000. Alba declared force majeure; Qatalum (Norsk Hydro JV) in controlled shutdown.","PwC: ~500,000 containers stranded across Gulf logistics networks. Kpler: Iran down to 12-22 days of oil storage. 230 loaded oil tankers waiting in Gulf. UN: 9.1M additional people at food insecurity risk from fertiliser disruption. Foreign Policy/SEMI: helium spot prices doubled \u2014 4-6 months to normalise even if strait opened today.","KPMG survey: 41% of companies now deploying AI for trade disruption mitigation. CIPS short-term supply chain anxiety at all-time record (The Manufacturer, Apr 20). Walker Morris (Apr 27): 'Delays, rising costs and shortages of raw materials are becoming everyday commercial realities.'"]},"ocean":{"threat":"CRITICAL","bullets":["BRENT $116.53 / WTI $106.88 (Apr 29 Trading Economics): 8th straight session of gains, highest since June 2022. Up 4.74% today, +90.85% vs year-ago. Fortune (9am ET): Brent $113.99/bbl, up $4.03 since yesterday, ~$50 above a year ago. Physical spot peaked $141.36 on April 2 (S&P Global) \u2014 futures still masking true physical tightness.","US THREATENS SANCTIONS ON CHINESE REFINERS PAYING HORMUZ TRANSIT FEES (Trading Economics Apr 29): This would eliminate the selective access channel (China, Japan, India, Malaysia, Thailand, Philippines) that has been the only functioning commercial route. The Japanese tanker Idemitsu Maru transited Tuesday with IRGC coordination \u2014 if US enacts Chinese refiner sanctions, this route closes. DHL (current): 'No commercial container shipping at this time.'","TALKS STALLED \u2014 FROZEN CONFLICT WARNING: Qatar warned Tuesday of a possible 'frozen conflict.' Iran FM met Putin for political leverage. No round 2 talks scheduled. Nuclear gap: US wants 20-year enrichment pause, Iran insists 5 years. House of Commons Library (3hrs ago): 'Neither side has removed their blockades.' Iran steel banned April 26. Tehran billboard: 'The Strait of Hormuz Remains Closed.'","CARRIER STATUS (DHL/DSV compiled \u2014 current): MSC \u2014 EoV (Mar 3), $800/container, Sohar/Salalah export suspension. CMA CGM \u2014 Clause 10, Advisory #10 fuel all modes. Maersk \u2014 transit avoided, EBS 2026 weekly FSC, D&D now applying. Hapag-Lloyd \u2014 Gulf except Jeddah, WRS $1,500/TEU. ZIM \u2014 NBF $850/container from May 1. Drewry WCI $2,232/40ft (Apr 23) \u2014 overcapacity limiting broader container rate increases.","FREIGHTOS (Apr 28): N.Europe $2,668/FEU (+8% pre-war), Med $3,527/FEU (-3% pre-war) \u2014 Hormuz is a Gulf cargo and energy shock, not a systemic container rate spike. Shanghai-Jebel Ali >$8,000/container (quadrupled). Freightos Air Index: 30% above pre-war globally. Drewry: 91% of sailings continuing on non-Gulf routes."]},"pulse":[{"l":"Brent (Apr 29 intraday high)","v":"$116.53/bbl","t":"up","n":"Trading Economics: highest since June 2022; 8th straight session; +90.85% vs year-ago"},{"l":"Brent (Fortune 9am ET Apr 29)","v":"$113.99/bbl","t":"up","n":"Up $4.03 since yesterday; ~$50 above this time last year"},{"l":"WTI Crude (Apr 29)","v":"$106.88/bbl","t":"up","n":"Trading Economics: +6.96% today; above $106 for first time since 2022"},{"l":"Drewry WCI (Apr 23)","v":"$2,232/40ft","t":"down","n":"Down 1% WoW \u2014 overcapacity limiting broader container rate increases"},{"l":"Shanghai-Jebel Ali","v":">$8,000/container","t":"up","n":"Freightos: quadrupled since start of war"},{"l":"Freightos N.Europe","v":"$2,668/FEU (+8%)","t":"up","n":"Only 8% above pre-war \u2014 Hormuz is energy/Gulf shock not container shock"},{"l":"Iran Steel Exports","v":"BANNED (Apr 26)","t":"down","n":"All slabs, sheet and strip prohibited \u2014 strategic wartime hoarding"},{"l":"Hormuz Daily Transits","v":"~4-8 ships/day","t":"down","n":"vs 116+ pre-war; US threatening to sanction transit-fee payers"}],"outlook":["SANCTIONS ON CHINESE REFINERS \u2014 THE NEXT ESCALATION: The US is threatening to sanction countries paying IRGC transit tolls through Hormuz. If enacted, this eliminates the only functioning commercial route through the strait \u2014 currently used by China, Japan, India, Malaysia and Thailand. Combined with Iran's billboard declaring the strait 'remains closed', this points to further escalation rather than resolution. Brent at $116.53 intraday and rising. JPMorgan's May 9-30 critical inventory threshold is now 10-21 days away.","SCENARIO A \u2014 Deal this week (low probability): Iran and US agree to simultaneous blockade removal as Phase 1, nuclear deferred. Brent drops $10-20 immediately. But IEA/JPMorgan confirm: 4-6 months to operational normalisation \u2014 mines to clear, tanker crew confidence to rebuild, ports to reopen, production to restart. No freight rate relief before Q4 2026. Cape routing and Turkey-Iraq remain structural baselines through Q3.","SCENARIO B \u2014 Frozen conflict (base case per Qatar): Neither side blinks. Brent pushes toward $120-130. US sanctions on Chinese refiners close the last Hormuz channel. Iran's parliament toll legislation becomes permanent. The 30-nation naval escort mission (planning at UK PJHQ) remains weeks away. CIPS anxiety at all-time record. Walker Morris: 'Disruption is no longer theoretical \u2014 it is everyday commercial reality.' Design supply chains for permanent volatility, not temporary shock."],"corridors":[{"icon":"\ud83d\ude9b","title":"TURKEY-IRAQ-JORDAN DEVELOPMENT ROAD","col":"#208050","status":"OPERATIONAL \u2014 DHL + DSV + MAERSK RECOMMENDED","items":["DHL: explicitly recommended across ALL country advisories (US, UK, DE, HK, IL)","Maersk: expanded multimodal transport solutions across Gulf region \u2014 landside available","DSV: implementing as primary diversified route for Gulf-cut-off markets","Transit: ~10 days Europe to GCC \u2014 fastest available landbridge","April 7 Amman MOU (Syria-Jordan-Turkey) \u2014 capacity tightening, book now"]},{"icon":"\ud83d\udce6","title":"DHL/DSV LCL \u2014 JEDDAH / DUQM / SOHAR","col":"#208050","status":"ACTIVE \u2014 MAERSK D&D NOW APPLIES","items":["Maersk free time EXPIRED yesterday Apr 30 \u2014 D&D accruing at Salalah and Jeddah","Extension packages: $100/container local, $240/container cross-border for 8 days","DHL LCL via Duqm or Jeddah \u2014 primary workaround for MSC Sohar/Salalah suspension","Jeddah: DG accepted; Saudi 60-day free storage programme \u2014 activate immediately","DHL Crisis Calls activated daily \u2014 real-time exception handling available"]},{"icon":"\u2708","title":"SEA-AIR HYBRID \u2014 JET FUEL CRISIS WATCH","col":"#a09030","status":"ACTIVE \u2014 PSA BDP: EU AIRPORTS AT RISK","items":["PSA BDP Week 16: 'EU airports face jet fuel shortage unless Hormuz reopens'","Freightos: Hormuz supplies ~20% of world's jet fuel \u2014 prices doubled since closure","Lufthansa -20k flights; KLM cancellations; Vietnam Airlines -20%; Cathay Pacific -2%","DHL B777 Leipzig-Dubai launching; Kuehne+Nagel buying air capacity aggressively","Freightos Air Index: 30% above pre-war globally; China-EU $5.07/kg, China-NA $6.40/kg"]},{"icon":"\ud83d\ude82","title":"CHINA-EUROPE RAIL (KAZAKHSTAN-RUSSIA)","col":"#a09030","status":"SURGING +40% VOLUME","items":["Transit 18-22 days; DSV routing via this corridor as structural alternative","Almaty and Tashkent hubs accepting Gulf transshipment cargo","Check Russia sanction compliance before booking","Not for temperature-sensitive or time-critical cargo","DSV capital markets day May 12 \u2014 rail strategy update expected"]},{"icon":"\u2693","title":"OMAN BYPASS + UAE PIPELINE (POST-OPEC EXIT)","col":"#a09030","status":"VIABLE \u2014 UAE OPEC EXIT WATCH","items":["UAE left OPEC (Fortune Apr 28) \u2014 can now ramp Fujairah ADCOP pipeline independently","Duqm: operational, Arabian Sea, outside Hormuz \u2014 DHL/DSV LCL hub","Saudi Yanbu + UAE Fujairah + Iraq Kirkuk-Ceyhan: ~9M bpd combined","Still 11M bpd short of 20M bpd Hormuz \u2014 structural gap remains","Selective Hormuz access now confirmed for exempt flag states \u2014 pursue IRGC coordination"]}],"ports":[{"n":"Jebel Ali","s":"CONGESTED","c":"#d06020","no":"Maersk: landside paused UAE/Qatar; EoV in effect; reefer/DG suspended"},{"n":"Khorfakkan","s":"NO EXPORTS","c":"#c03020","no":"DHL: not accepting export containers; 7-10 day waits"},{"n":"Jeddah","s":"D&D ACTIVE","c":"#c03020","no":"Maersk free time expired Apr 30 \u2014 standard charges now apply; DG accepted"},{"n":"Salalah","s":"D&D ACTIVE","c":"#c03020","no":"Maersk free time expired Apr 30 \u2014 standard charges now apply; ISPS Level 2"},{"n":"Sohar","s":"DG RESTRICTED","c":"#c09020","no":"DG via carrier approval only; DHL/DSV LCL hub fallback"},{"n":"Duqm","s":"OPERATIONAL","c":"#208050","no":"Arabian Sea; outside Hormuz; DHL/DSV primary LCL hub"},{"n":"Mundra (India)","s":"49-DAY DELAYS","c":"#c03020","no":"Freightos: arrival delays up to 49 days from diverted Gulf cargo"},{"n":"Singapore","s":"BUNKER TIGHTENING","c":"#c09020","no":"Freightos: bunker fuel tightening; some ships rerouting to China for fuel"}],"sources":[{"cat":"\ud83d\udea8 BREAKING / TODAY (Apr 29 2026)","items":["Trading Economics (Apr 29, live): Brent $116.53/bbl intraday high \u2014 up 4.74%, highest since June 2022, 8th straight session, +90.85% vs year-ago","Fortune (9am ET Apr 29): Brent $113.99/bbl \u2014 up $4.03 since yesterday, ~$50 above this time last year","Trading Economics (Apr 29): WTI $106.88/bbl \u2014 up 6.96% today; US crude inventories fell sharply, exports surged above 6M bpd","Trading Economics (Apr 29): US threatening sanctions on Chinese refiners paying Hormuz transit fees \u2014 would eliminate selective access channel","NPR (updated 3:47am ET Apr 29): peace talks stalled; nuclear gap: US 20-year enrichment pause vs Iran 5 years; no round 2 scheduled","CBS News Live (Apr 29): Qatar warned of 'frozen conflict'; Iran FM Araghchi met Putin in Moscow; Tehran billboard reads 'Strait Remains Closed'","House of Commons Library (updated 3hrs ago): comprehensive ceasefire/Hormuz briefing \u2014 neither blockade lifted; Hormuz central issue in talks","Al Jazeera (Apr 28/29): Trump 'doesn't love' Iran proposal; CNN: US unlikely to accept without nuclear provisions; Iran proposal 'reasonable' per analyst Mortazavi"]},{"cat":"\ud83d\udcca PRICE + ECONOMIC DATA","items":["Fortune (Apr 28): Brent $109.96 at 9am ET \u2014 $3.23 above prior day; $44.50 above year-ago; SPR context provided","Investing.com: Brent open April 29 at $104.26; strong buy signal from technical indicators","S&P Global/CNBC (Apr 2): Brent physical spot $141.36 \u2014 highest since 2008; $32 above June futures","Trading Economics (Apr 28): Brent $111.57 high \u2014 up 3.78% over 4 weeks; 76.13% above year-ago","IMF (Apr 22): global growth takes hit even if ceasefire holds; Hormuz 'persistent drag' on energy/inflation","Goldman Sachs: Q4 Brent avg $90/bbl \u2014 extreme inventory draws; $30 above pre-Hormuz forecast","JPMorgan: OECD operational minimums May 9-30 \u2014 prices exponential after threshold","UK House of Commons Library (Apr 28): comprehensive ceasefire/nuclear negotiation briefing \u2014 neither blockade lifted"]},{"cat":"\ud83d\udea2 CARRIER ADVISORIES (DIRECT SOURCES)","items":["Maersk Operational Update 22 (Apr 16): transit avoided; EBS 2026 weekly FSC; PIC charge from Apr 6","Maersk Update 4 (Apr 22): 15-day free time extension EXPIRED April 30 \u2014 D&D now applies at Salalah and Jeddah","DHL Global Forwarding (US + DE, current): Hormuz effectively closed; congestion at 5 ports; LCL demand rising; landbridge critical","DSV Middle East Supply Chain Advisory (current): P&I exclusion zone all waters west of Cape al-Hadd; road delays; air rerouted via China/HK","MSC: EoV (Mar 3), $800/container diversion, Sohar/Salalah suspension. CMA CGM: Clause 10, Advisory #10 fuel, Iranian warning shots","Hapag-Lloyd: Gulf except Jeddah, WRS $1,500/TEU. Evergreen: fuel +60% since Feb 28. ZIM: NBF $850/container from May 1","Freightos (Apr 28): N.Europe $2,668/FEU (+8%); Med $3,527/FEU (-3%); Shanghai-Jebel Ali >$8,000; Hormuz mostly a Gulf/energy issue","Drewry WCI (Apr 23): $2,232/40ft \u2014 down 1% WoW; 91% of sailings continuing; overcapacity dampening broader rates"]},{"cat":"\ud83c\udfe6 BANKS + CONSULTING + RESEARCH","items":["Goldman Sachs: Q2 2026 Market Know-How \u2014 tactical defensiveness; stagflation hedges; Brent Q4 avg $90/bbl","JPMorgan: operational minimums May 9-30 \u2014 prices exponential; 4-6 months recovery even after deal ends","Gartner (David Gonzalez): companies expect 40% surge in cost-to-serve; two-thirds expect revenue loss in disruption","KPMG (Angie Gildea): Hormuz 'most critical pressure point in global energy markets'; stress-test all scenarios","Xeneta (Peter Sand): Red Sea return shelved all 2026; further weaponization of trade","BCG: aluminium biggest base metals shock post-2000 (Mercuria/Goldman/JPMorgan also cited); petrochemicals, fertilisers, helium, methanol disrupted","PwC (Apr 25): 500,000 TEU stranded; structural redesign required. UNCTAD: global trade 1.5-2.5% 2026","PSA BDP Blog Weeks 9-16: EU jet fuel shortage risk; 3,200 ships trapped; US $20B reinsurance programme","Foreign Policy/SEMI (Apr 27): helium doubled; 4-6 months to normalise; S.Korea/Taiwan most exposed","UN News (Apr 23): 9.1M people food insecurity risk; Bangladesh fertiliser factories shut"]}],"status":[{"l":"HORMUZ","s":"CLOSING FURTHER","c":"#c02018","p":true},{"l":"BRENT","s":"$116.53 TODAY","c":"#c02018","p":false},{"l":"RED SEA","s":"CLOSED 2026","c":"#c02018","p":false},{"l":"CAPE","s":"ACTIVE DEFAULT","c":"#208050","p":false},{"l":"TALKS","s":"FROZEN CONFLICT","c":"#c02018","p":true},{"l":"IRAN STEEL","s":"EXPORT BANNED","c":"#c02018","p":false},{"l":"MAY 9-30","s":"10-21 DAYS AWAY","c":"#c02018","p":true},{"l":"MAERSK FT","s":"D&D ACTIVE","c":"#c03020","p":true}],"tickers":["BRENT $116.53 INTRADAY \u2014 HIGHEST SINCE JUNE 2022  |  8TH STRAIGHT SESSION OF GAINS  |  +90.85% VS YEAR-AGO","WTI $106.88 TODAY (+6.96%)  |  FORTUNE: BRENT $113.99 AT 9AM ET  |  UP ~$50 VS YEAR-AGO","US THREATENS SANCTIONS ON CHINESE REFINERS PAYING IRGC HORMUZ TRANSIT FEES \u2014 LAST ROUTE AT RISK","QATAR WARNS OF 'FROZEN CONFLICT' IN GULF  |  NO ROUND 2 TALKS SCHEDULED  |  NUCLEAR GAP UNRESOLVED","TEHRAN BILLBOARD: 'THE STRAIT OF HORMUZ REMAINS CLOSED'  |  WEEK 9 OF CONFLICT","IRAN BANS ALL STEEL EXPORTS EFFECTIVE APR 26 \u2014 SLABS, SHEET AND STRIP PROHIBITED","MAERSK FREE TIME EXPIRED APR 30 \u2014 D&D NOW ACCRUING AT SALALAH AND JEDDAH","JPMORGAN: OECD OIL INVENTORIES HIT OPERATIONAL MINIMUMS MAY 9-30  |  NOW 10-21 DAYS AWAY","IDEMITSU MARU TRANSITED WITH IRGC COORDINATION  |  SELECTIVE ACCESS CHANNEL UNDER THREAT FROM US SANCTIONS","HEZBOLLAH-ISRAEL CEASEFIRE FRAYING  |  ISRAEL STRIKING S.LEBANON  |  HEZBOLLAH FIRING DRONES","DHL: HORMUZ 'EFFECTIVELY CLOSED \u2014 NO COMMERCIAL CONTAINER SHIPPING AT THIS TIME'","FREIGHTOS: N.EUROPE $2,668/FEU (+8%)  |  DREWRY WCI $2,232/40FT  |  CONTAINER MARKET HOLDS UP OUTSIDE GULF","PSA BDP: 'EU AIRPORTS FACE JET FUEL SHORTAGE UNLESS HORMUZ REOPENS'  |  20% OF JET FUEL FROM MIDDLE EAST","UAE LEFT OPEC AFTER SWAP LINE DEAL WITH US TREASURY  |  CAN NOW RAMP PRODUCTION UNILATERALLY"],"strategies":{"updated":"Wednesday, April 29, 2026 | 07:17 GMT","intro":"What separates companies absorbing this crisis from those damaged by it \u2014 drawn from named executives, SEC filings and conference floor statements. Every strategy below has a company behind it.","categories":[{"icon":"\ud83d\uddfa","title":"NETWORK & SOURCING REDESIGN","color":"#3a78b8","strategies":[{"name":"Reroute now, redesign later \u2014 Hyundai CEO Jos\u00e9 Mu\u00f1oz","who":"Hyundai \u00b7 Bloomberg/Automotive News \u00b7 April 2026","detail":"Hyundai CEO Jos\u00e9 Mu\u00f1oz confirmed in a Bloomberg interview: 'We have deviated our ships to the Cape of Good Hope \u2014 this is a lot of additional lead time.' Mu\u00f1oz announced a longer-term structural response: sourcing more components in Europe rather than shipping from South Korea, and boosting US manufacturing capacity. Hyundai's Saudi CKD plant launch has been delayed as a direct result. The lesson: reroute immediately (Cape), then use the crisis window to accelerate regional sourcing decisions that were already strategically correct."},{"name":"Map Tier 2+ before the crisis finds them for you \u2014 Resilinc","who":"Resilinc \u00b7 ISM Webinar \u00b7 March 2026","detail":"Resilinc's analysis post-February 28 identified 3,600+ HS codes, 11,000+ suppliers and 100,000+ products affected \u2014 with potential revenue exposure approaching $460 billion. Most of this exposure was invisible to procurement teams before the crisis. Paul Rossi (Resilinc): 'These materials are embedded in everything from automotive components to medical devices. If you follow the chain, the impact is far broader than most companies initially assume.' Companies that had pre-mapped their Tier 2-3 dependencies had response plans ready within days. Those that hadn't spent weeks just figuring out what they were exposed to."},{"name":"Shift from cost to best-value sourcing \u2014 BCG framework","who":"BCG \u00b7 'Geopolitics Changes the Procurement Equation' \u00b7 2025/2026","detail":"BCG's analysis shows companies that optimised purely on cost are now systematically exposed. The best-value sourcing framework scores suppliers simultaneously on cost, quality, delivery, supply risk, sustainability, market access and innovation. Practical application: the semiconductor shortage of 2021 began as a 12-week problem and lasted two years \u2014 companies with single-source, lowest-cost strategies lost an estimated $210 billion in revenue across the auto industry. The same structural error is now playing out with Gulf aluminium and petrochemicals."},{"name":"Alba declared force majeure \u2014 1.6M tonne smelter offline","who":"Aluminium Bahrain (Alba) \u00b7 Automotive Logistics \u00b7 March 2026","detail":"Alba \u2014 the world's largest single-site aluminium smelter at 1.6 million tonnes/year \u2014 declared force majeure on deliveries and cut output 19%, unable to load shipments through Hormuz. Qatalum (Norsk Hydro JV) announced a controlled shutdown from gas shortages. A mid-size passenger vehicle contains 200kg+ of aluminium. Every stamping plant and body assembly line in global vehicle manufacturing is now exposed. Companies that had dual-sourced aluminium outside the Gulf (eg. from Novelis Oswego NY once it restarts late Q2) are managing. Those with single-source Gulf exposure are scrambling."}]},{"icon":"\ud83d\udce6","title":"INVENTORY & BUFFER STRATEGY","color":"#b04818","strategies":[{"name":"45 days of stock \u2014 Toyota's standard that saved them","who":"Toyota \u00b7 Supply Chain Dive \u00b7 Reuters Supply Chain USA Conference","detail":"Toyota typically keeps around 45 days of stock on hand \u2014 deliberately above the JIT minimum \u2014 to sustain operations during a crisis. Kevin Austin (Group VP, Demand & Supply Management, Toyota North America): 'We always thought we were one of the best in the industry of managing stock with a level of discipline.' Toyota also uses AI-based production scheduling to optimise across its network and dual-sources geopolitically exposed components. In the current crisis, Toyota's pre-positioned buffer gave it 6 weeks of runway while competitors scrambled for spot market supply."},{"name":"Stock without movement is worthless \u2014 ISM panel warning","who":"ISM \u00b7 'Navigating the Middle East Conflict' Webinar \u00b7 March 2026","detail":"Paul Rossi (Resilinc, ISM panel): 'Inventory can give you a false sense of security. If you can't move it, it doesn't matter how much you have.' The point is illustrated by the 500,000 containers currently stranded in Gulf logistics networks (PwC). Companies that built inventory at Jebel Ali before the crisis have stock they can't access. Best practice: pre-position across multiple nodes \u2014 not just at origin or destination \u2014 and test logistics routability quarterly, not annually."},{"name":"Apply Time-to-Recover vs Time-to-Survive to every exposed category","who":"PwC / ITS Logistics / StartUs Insights framework \u00b7 2026","detail":"If Time-to-Recover (TTR) exceeds Time-to-Survive (TTS) for a given route or supplier, you need a buffer. For Hormuz-origin commodities, TTR is now 4-6 months minimum \u2014 mines to clear, tanker crews need 2-3 weeks confidence, ports take 2 months to reopen (JPMorgan). Calculate TTS for every critical category and close the gap. ITS Logistics confirms leading companies have moved from 30-day to 60-90 day buffers for Hormuz-dependent materials. This is now the industry standard, not a conservative outlier."}]},{"icon":"\ud83d\ude9b","title":"LOGISTICS & ROUTING","color":"#208050","strategies":[{"name":"Within hours of conflict, Expeditors framed carrier/port/mode contingencies","who":"Expeditors International \u00b7 SEC Form 8-K \u00b7 March 2026","detail":"Expeditors International disclosed in its SEC 8-K filing: 'Within hours of the initial conflict, we started to frame contingencies to work with our carrier partners and customers to find alternative ports, lanes and modes of transportation to prevent freight from being stranded.' This is the benchmark response time. Companies with pre-built carrier relationships across three tiers \u2014 major (Maersk/MSC), regional, and niche/spot \u2014 had options within hours. Companies with single-carrier dependencies had none. Expeditors has 'throughout our history proven ourselves highly adept at handling significant levels of disruption' \u2014 this is not luck, it is prepared infrastructure."},{"name":"Restructure logistics as an enterprise decision \u2014 GM, Toyota, Maersk, Kinaxis at ALSC Europe","who":"GM \u00b7 Toyota Motor Europe \u00b7 Maersk \u00b7 Kinaxis \u00b7 ALSC Europe 2026 \u00b7 Bonn","detail":"At ALSC Europe 2026 in Bonn, leaders from General Motors, Schaeffler, Maersk, Toyota Motor Europe and Kinaxis reached a common conclusion: 'Companies pulling ahead are the ones that have restructured how logistics fits into the enterprise before the crisis arrives.' Maersk CCO Karsten Kildahl acknowledged: 'Our customers with cargo to and from the Gulf are in a very difficult situation \u2014 together, we are trying to find the best possible solution.' The companies that gave logistics C-suite visibility before February 28 had routing alternatives ready. Those that treated logistics as a purely operational function were making strategic decisions under acute time pressure."},{"name":"Customer first, supply base second \u2014 Aston Martin","who":"Martin Corner \u00b7 Executive Director Supply Chain \u00b7 Aston Martin \u00b7 ALSC Europe 2026","detail":"Martin Corner (Aston Martin): 'We really went customer first, supply base second.' When disruption hit, Aston Martin's first question was which Gulf-region customers were most exposed to military action or cash flow disruption \u2014 not which suppliers to call. This triage logic prevented the reactive chaos of simultaneous uncoordinated calls to 200 suppliers. The structured prioritisation: (1) identify which customers are at risk, (2) assess impact on their operations, (3) work back through the supply base to protect customer commitments first."},{"name":"Use crisis as an accelerator, not a blocker \u2014 JLR","who":"Levent Yuksel \u00b7 Freight Operations Director \u00b7 JLR \u00b7 ALSC Europe 2026","detail":"JLR's Levent Yuksel: 'There's a crisis in the Middle East, but if that crisis is pumping up the cost of diesel then maybe it's an opportunity for us to think differently and accelerate our actions about alternative solutions.' JLR used surging diesel costs as the business case to accelerate EV fleet conversion and modal shift decisions that were already in planning but stuck in internal approvals. The lesson: every disruption creates a burning platform that makes previously difficult internal decisions easy. Use it."}]},{"icon":"\ud83d\udccb","title":"PROCUREMENT & CONTRACTING","color":"#a09030","strategies":[{"name":"Index-link freight contracts \u2014 Brent ranged $89-141 in 8 weeks","who":"Xeneta / BCG / Walker Morris \u00b7 Spring 2026","detail":"Brent crude ranged from $89/bbl (April 17 ceasefire euphoria) to $141.36/bbl physical spot (April 2) \u2014 a $52 range in 8 weeks. Fixed freight rate contracts are unsustainable at this volatility. Walker Morris (Spring 2026 Supply Chain Disruption brief): price increases of 10%+ are expected in the next quarter for petroleum, metal ores, chemicals and logistics. Best practice: index-linked freight contracts tied to Brent or Drewry WCI with agreed floors and ceilings, reviewed monthly. Contracts without energy escalation clauses are currently being force-majeured or breached across the market."},{"name":"Hybrid contract strategy: 60/40 long-term to spot","who":"Xeneta \u00b7 'Biggest Supply Chain Risks of 2026' \u00b7 February 2026","detail":"Xeneta's research confirms neither pure long-term contracts (inflexible when rates crash or routes close) nor pure spot (exposed to spikes) are optimal. Leading companies use a 60/40 or 70/30 blend: majority on contract for volume certainty, remainder on short-term or spot for flexibility. This ratio is rebalanced quarterly based on market intelligence. The Xeneta Academy (launching 2026) is certifying procurement teams in structured freight rate management \u2014 an indication of how commercially strategic this has become."},{"name":"Embed trade compliance in procurement from day one \u2014 67% of companies failed here","who":"Gartner / Exiger \u00b7 Supplier Risk Report \u00b7 April 2026","detail":"Exiger/Gartner: 67% of companies have faced procurement complications from geopolitical factors. The specific failure mode: sanctions, export controls, flag-state restrictions and war-zone insurance exclusions were not considered until after a supplier was selected. In the current crisis, DSV's P&I exclusion zone covers all waters west of Cape al-Hadd \u2014 suppliers that seemed viable 8 weeks ago are now inaccessible. The fix: embed trade compliance teams in procurement from the RFQ stage, not in legal after contract award. Gartner's 2026 Symposium agenda names geopolitics as part of the same strategic discussion as cost and AI \u2014 no longer a separate risk function."}]},{"icon":"\ud83d\udd2d","title":"RISK INTELLIGENCE & SCENARIO PLANNING","color":"#8050c0","strategies":[{"name":"Quarterly resilience rehearsals cut recovery time 30% \u2014 Gartner","who":"Gartner \u00b7 Supply Chain Management Review \u00b7 December 2025","detail":"Gartner research: companies lacking scenario-based stress testing endure recovery times up to 30% longer after a major shock. An electronics retailer built a live digital twin of its end-to-end network, ingesting real-time data on inventory, lead times, carrier rates and macro indicators. When tariff changes hit key components, the company ran alternative routing models in minutes, rerouted freight mid-transit and maintained consistent on-time delivery. This was not crisis management \u2014 it was a prepared response to a scenario that had already been rehearsed quarterly. Gartner: only 7% of supply chains can execute decisions in real time. This is the gap to close."},{"name":"Plan Scenario A and B simultaneously \u2014 Goldman/McKinsey dual-track","who":"Goldman Sachs \u00b7 McKinsey \u00b7 EIA \u00b7 April 2026","detail":"Goldman Sachs (Q2 2026 Market Know-How) has gone 'tactically defensive, prioritising hedges against stagflationary and recessionary tail risks' \u2014 explicitly running two scenarios simultaneously. McKinsey's 2026 research confirms best-in-class supply chain leaders do not bet on one diplomatic outcome. Scenario A (deal this week): Brent eases $10-15, but IEA/JPMorgan confirm 4-6 months to operational normalisation \u2014 no rate relief before Q4. Scenario B (no deal): Brent to $115-120, exponential inventory drawdown from May 9-30. EIA flags its own mid-year resumption assumption 'could prove too optimistic.' The correct position: commit resources to both simultaneously."},{"name":"41% of companies are deploying AI to mitigate trade disruption \u2014 KPMG","who":"KPMG Trade Disruption Survey \u00b7 Supply Chain Dive \u00b7 April 2026","detail":"KPMG survey: 41% of companies are deploying AI to mitigate trade disruption \u2014 the fastest-growing single application for AI in supply chain. Specific use cases in the current crisis: Resilinc's Agentic AI (built on Microsoft Azure) scans millions of signals to detect disruption shocks and automatically proposes mitigation steps. VW uses AI to evaluate if delivery of strategic supplies is possible given geopolitical conditions. Toyota uses AI-based production scheduling to optimise across its global network. The laggards: companies still using static spreadsheets for scenario planning \u2014 Gartner identifies this as the single largest execution gap in supply chain resilience."}]},{"icon":"\ud83c\udfed","title":"OPERATIONS & MANUFACTURING","color":"#c02018","strategies":[{"name":"Globalisation is over \u2014 Hyundai CEO declares structural shift","who":"Jos\u00e9 Mu\u00f1oz \u00b7 CEO Hyundai Motor \u00b7 Automotive World \u00b7 April 2026","detail":"Hyundai CEO Jos\u00e9 Mu\u00f1oz, announcing Cape of Good Hope rerouting: 'Globalisation is over.' This was not rhetorical \u2014 Mu\u00f1oz simultaneously announced structural changes: sourcing more components in Europe (not South Korea), boosting US capacity, and acknowledging the Saudi CKD plant launch is now uncertain. BYD raised its 2026 overseas sales target from 1.3M to 1.5M units in the same period \u2014 showing that Chinese competitors are using the crisis as a growth opportunity while Western OEMs manage disruption. The implication for all manufacturers: the model of centralised low-cost production with long global supply chains is being retired in real time."},{"name":"Denso bids $8.2bn for Rohm \u2014 Toyota group acquires chip supply security","who":"Denso / Toyota Group \u00b7 Nikkei \u00b7 March 2026","detail":"Toyota group's Denso proposed acquiring chipmaker Rohm in a deal that could reach $8.2 billion \u2014 explicitly to consolidate Japan's power-semiconductor sector amid Chinese competition and Gulf supply disruption. This is vertical integration as risk mitigation: rather than relying on market supply for a critical component, Toyota group is acquiring the supply. This follows the same logic as Toyota's 45-day buffer stock standard \u2014 reduce dependency on external factors that cannot be controlled. For companies that cannot acquire suppliers, the equivalent action is long-term capacity reservation contracts with semiconductor, specialty chemical and aluminium producers outside the Gulf."},{"name":"CIPS anxiety at record high \u2014 supply chain disruption is now permanent","who":"CIPS / The Manufacturer \u00b7 Walker Morris \u00b7 April 2026","detail":"The Manufacturer (April 20, 2026): the latest CIPS survey shows short-term supply chain anxiety has climbed to the highest level ever recorded. Walker Morris (Spring 2026): disruption is 'no longer theoretical \u2014 delays, rising costs, shortages of raw materials and difficulty performing contractual obligations are becoming everyday commercial realities.' The structural implication: supply chain disruption is no longer a crisis to manage and recover from \u2014 it is the operating environment to design for. Companies still treating this as a temporary shock are mis-allocating resources. Companies redesigning their networks for permanent volatility are building competitive advantage."}]}]}};
+
+// ── BOOT ─────────────────────────────────────────────────────────
+
+setInterval(updateClocks, 1000);
+updateClocks();
+loadData(false);
 </script>
+
 </body>
 </html>
